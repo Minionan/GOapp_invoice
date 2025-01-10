@@ -237,10 +237,18 @@
                     }
                 }
 
+                // Fetch the selected client details
+                let selectedClient = $('#client-dropdown').val();
+                let client = window.clientsData.find(c => c.abbreviation === selectedClient);
+
                 // Proceed with file generation if no issues or user confirmed
-                let invoiceDetails = `Invoice Number: ${$('#invoiceNumber').val()}\n`;
-                invoiceDetails += `Client Name: ${$('#client-dropdown').val()}\n`;
-                invoiceDetails += `Date: ${$('#invoiceDate').val()}\n\n`;
+                let invoiceDetails = `Invoice Number: ${$('#invoiceNumber').val()}\n\n`;
+                invoiceDetails += `Client Name: ${client.clientName}\n`;
+                invoiceDetails += `Parent Name: ${client.parentName}\n`;
+                invoiceDetails += `Address 1: ${client.address1}\n`;
+                invoiceDetails += `Address 2: ${client.address2}\n`;
+                invoiceDetails += `Phone: ${client.phone}\n`;
+                invoiceDetails += `Email: ${client.email}\n\n`;
                 invoiceDetails += "Jobs:\n";
 
                 $('.job-row').each(function(index) {
