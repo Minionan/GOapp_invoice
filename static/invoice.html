@@ -169,90 +169,6 @@
                 updateFullPrice(row);
             });
 
-            $('#generate-txt').click(function() {
-                // Check if invoice number is set
-                if (!$('#invoiceNumber').val()) {
-                    alert('Please select both client and date to generate invoice number before downloading the file.');
-                    return;
-                }
-
-                // Check for empty or zero values in job rows
-                let issues = [];
-                let hasIssues = false;
-
-                $('.job-row').each(function(index) {
-                    const rowNum = index + 1;
-                    const jobDescription = $(this).find('.job-dropdown').val();
-                    const quantity = parseFloat($(this).find('.quantity').val()) || 0;
-                    const price = parseFloat($(this).find('.price').val()) || 0;
-                    const fullPrice = parseFloat($(this).find('.fullPrice').val()) || 0;
-
-                    if (!jobDescription) {
-                        issues.push(`Job ${rowNum}: Job Description is not selected`);
-                        hasIssues = true;
-                    }
-                    if (quantity === 0) {
-                        issues.push(`Job ${rowNum}: Quantity is zero`);
-                        hasIssues = true;
-                    }
-                    if (price === 0) {
-                        issues.push(`Job ${rowNum}: Price is zero`);
-                        hasIssues = true;
-                    }
-                    if (fullPrice === 0) {
-                        issues.push(`Job ${rowNum}: Full Price is zero`);
-                        hasIssues = true;
-                    }
-                });
-
-                if (hasIssues) {
-                    const message = 'The following issues were found:\n\n' + 
-                                issues.join('\n') + 
-                                '\n\nDo you want to proceed with generating the file anyway?';
-                    
-                    if (!confirm(message)) {
-                        return;
-                    }
-                }
-
-                // Proceed with file generation if no issues or user confirmed
-                var formData = {};
-                formData.clientName = $('#client-dropdown').val();
-                formData.invoiceDate = $('#invoiceDate').val();
-                formData.invoiceNumber = $('#invoiceNumber').val();
-
-                formData.job = [];
-                $('.job-row').each(function() {
-                    var jobDescription = $(this).find('.job-dropdown').val();
-                    var quantity = $(this).find('.quantity').val();
-                    var price = $(this).find('.price').val();
-                    var fullPrice = $(this).find('.fullPrice').val();
-
-                    formData.job.push({
-                        description: jobDescription,
-                        quantity: quantity,
-                        price: price,
-                        fullPrice: fullPrice
-                    });
-                });
-
-                formData.cost = $('#cost').val();
-                formData.vat = $('#vat').val();
-                formData.total = $('#total').val();
-
-                $.post('/generate-invoice', formData, function(data) {
-                    var blob = new Blob([data], {type: 'text/plain'});
-                    var url = window.URL.createObjectURL(blob);
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = formData.invoiceNumber + '.txt';
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    window.URL.revokeObjectURL(url);
-                });
-            });
-
             function calculateTotals() {
                 var totalCost = 0;
                 $('.job-row').each(function() {
@@ -274,6 +190,86 @@
                 row.find('.fullPrice').val(fullPrice.toFixed(2));
                 calculateTotals();
             }
+
+            $('#generate-txt').click(function() {
+                // Check if invoice number is set
+                if (!$('#invoiceNumber').val()) {
+                    alert('Please select both client and date to generate invoice number before downloading the file.');
+                    return;
+                }
+
+                // Check for empty or zero values in job rows
+                let issues = [];
+                let hasIssues = false;
+
+                $('.job-row').each(function(index) {
+                    const rowNum = index + 1;
+                    const jobDescription = $(this).find('.job-dropdown').val();
+                    const quantity = parseFloat($(this).find('.quantity').val()) || 0;
+                    const price = parseFloat($(this).find('.price').val()) || 0;
+                    const fullPrice = parseFloat($(this).find('.fullPrice').val()) || 0;
+
+                    if (!jobDescription) {
+                        issues.push(`Row ${rowNum}: Job Description is not selected`);
+                        hasIssues = true;
+                    }
+                    if (quantity === 0) {
+                        issues.push(`Row ${rowNum}: Quantity is zero`);
+                        hasIssues = true;
+                    }
+                    if (price === 0) {
+                        issues.push(`Row ${rowNum}: Price is zero`);
+                        hasIssues = true;
+                    }
+                    if (fullPrice === 0) {
+                        issues.push(`Row ${rowNum}: Full Price is zero`);
+                        hasIssues = true;
+                    }
+                });
+
+                if (hasIssues) {
+                    const message = 'The following issues were found:\n\n' + 
+                                    issues.join('\n') + 
+                                    '\n\nDo you want to proceed with generating the file anyway?';
+                    
+                    if (!confirm(message)) {
+                        return;
+                    }
+                }
+
+                // Proceed with file generation if no issues or user confirmed
+                let invoiceDetails = `Invoice Number: ${$('#invoiceNumber').val()}\n`;
+                invoiceDetails += `Client Name: ${$('#client-dropdown').val()}\n`;
+                invoiceDetails += `Date: ${$('#invoiceDate').val()}\n\n`;
+                invoiceDetails += "Jobs:\n";
+
+                $('.job-row').each(function(index) {
+                    const jobDescription = $(this).find('.job-dropdown').val();
+                    const quantity = $(this).find('.quantity').val();
+                    const price = $(this).find('.price').val();
+                    const fullPrice = $(this).find('.fullPrice').val();
+
+                    if (jobDescription) {
+                        invoiceDetails += `Row ${index + 1}: ${jobDescription}, Quantity: ${quantity}, Price: ${price}, Full Price: ${fullPrice}\n`;
+                    }
+                });
+
+                invoiceDetails += `\nJob Cost: ${$('#cost').val()}\n`;
+                invoiceDetails += `VAT (5%): ${$('#vat').val()}\n`;
+                invoiceDetails += `Total Amount: ${$('#total').val()}\n`;
+
+                // Use the formatted string as the data for the blob
+                var blob = new Blob([invoiceDetails], {type: 'text/plain'});
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = $('#invoiceNumber').val() + '.txt';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            });
+
         });
     </script>
 </body>
