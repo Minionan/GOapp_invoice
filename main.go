@@ -1,10 +1,15 @@
+// main.go
 package main
 
 import (
+	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
-	"os"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Job struct {
@@ -22,6 +27,16 @@ type Client struct {
 	Abbreviation string `json:"abbreviation"`
 }
 
+var db *sql.DB
+
+func init() {
+	var err error
+	db, err = sql.Open("sqlite3", "./db/data.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.Must(template.ParseFiles("static/invoice.html"))
@@ -29,79 +44,47 @@ func main() {
 	})
 
 	http.HandleFunc("/jobs", func(w http.ResponseWriter, r *http.Request) {
-		jobsData, err := os.ReadFile("static/jobs.json")
+		rows, err := db.Query("SELECT jobName, price FROM jobs")
 		if err != nil {
-			http.Error(w, "Failed to read jobs data", http.StatusInternalServerError)
+			http.Error(w, "Failed to query jobs data", http.StatusInternalServerError)
 			return
 		}
+		defer rows.Close()
+
+		var jobs []Job
+		for rows.Next() {
+			var job Job
+			if err := rows.Scan(&job.JobName, &job.Price); err != nil {
+				http.Error(w, "Failed to scan job data", http.StatusInternalServerError)
+				return
+			}
+			jobs = append(jobs, job)
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(jobsData)
+		json.NewEncoder(w).Encode(jobs)
 	})
 
 	http.HandleFunc("/clients", func(w http.ResponseWriter, r *http.Request) {
-		clientsData, err := os.ReadFile("static/clients.json")
+		rows, err := db.Query("SELECT clientName, parentName, address1, address2, phone, email, abbreviation FROM clients")
 		if err != nil {
-			http.Error(w, "Failed to read clients data", http.StatusInternalServerError)
+			http.Error(w, "Failed to query clients data", http.StatusInternalServerError)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(clientsData)
-	})
+		defer rows.Close()
 
-	http.HandleFunc("/generate-invoice", func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Failed to parse form data", http.StatusBadRequest)
-			return
-		}
-
-		clientName := r.FormValue("clientName")
-		invoiceDate := r.FormValue("invoiceDate")
-		invoiceNumber := r.FormValue("invoiceNumber")
-
-		jobs := []struct {
-			JobDescription string `json:"jobDescription"`
-			Quantity       string `json:"quantity"`
-			Price          string `json:"price"`
-			FullPrice      string `json:"fullPrice"`
-		}{}
-
-		for i := 0; ; i++ {
-			jobDescription := r.FormValue(fmt.Sprintf("job[%d][description]", i))
-			if jobDescription == "" {
-				break
+		var clients []Client
+		for rows.Next() {
+			var client Client
+			if err := rows.Scan(&client.ClientName, &client.ParentName, &client.Address1, &client.Address2, &client.Phone, &client.Email, &client.Abbreviation); err != nil {
+				http.Error(w, "Failed to scan client data", http.StatusInternalServerError)
+				return
 			}
-			jobs = append(jobs, struct {
-				JobDescription string `json:"jobDescription"`
-				Quantity       string `json:"quantity"`
-				Price          string `json:"price"`
-				FullPrice      string `json:"fullPrice"`
-			}{
-				JobDescription: jobDescription,
-				Quantity:       r.FormValue(fmt.Sprintf("job[%d][quantity]", i)),
-				Price:          r.FormValue(fmt.Sprintf("job[%d][price]", i)),
-				FullPrice:      r.FormValue(fmt.Sprintf("job[%d][fullPrice]", i)),
-			})
+			clients = append(clients, client)
 		}
 
-		cost := r.FormValue("cost")
-		vat := r.FormValue("vat")
-		total := r.FormValue("total")
-
-		invoiceContent := fmt.Sprintf(
-			"Client Name: %s\nInvoice Date: %s\nInvoice Number: %s\n",
-			clientName, invoiceDate, invoiceNumber,
-		)
-		for _, job := range jobs {
-			invoiceContent += fmt.Sprintf(
-				"Job Description: %s\nQuantity: %s\nPrice: %s\nFull Price: %s\n",
-				job.JobDescription, job.Quantity, job.Price, job.FullPrice,
-			)
-		}
-		invoiceContent += fmt.Sprintf("Cost: %s\nVAT (5%%): %s\nTotal: %s\n", cost, vat, total)
-
-		w.Header().Set("Content-Disposition", "attachment; filename="+invoiceNumber+".txt")
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte(invoiceContent))
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(clients)
 	})
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
