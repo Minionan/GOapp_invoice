@@ -1,0 +1,29 @@
+[
+    {
+        "clientName": "Johnathan Michael Doe",
+        "parentName": "Michael John Doe",
+        "address1": "1234 Elm Street",
+        "address2": "Apt 5B",
+        "phone": "(555) 123-4567",
+        "email": "johndoe@example.com",
+        "abbreviation": "JMD"
+    },
+    {
+        "clientName": "Emily Elizabeth Smith",
+        "parentName": "James William Smith",
+        "address1": "987 Oak Avenue",
+        "address2": "",
+        "phone": "(555) 987-6543",
+        "email": "emilysmith@website.org",
+        "abbreviation": "EES"
+    },
+    {
+        "clientName": "William Thomas Johnson",
+        "parentName": "David Robert Johnson",
+        "address1": "456 Maple Road",
+        "address2": "Suite 302",
+        "phone": "(555) 555-5555",
+        "email": "williamjohnson@service.net",
+        "abbreviation": "WTJ"
+    }
+]
