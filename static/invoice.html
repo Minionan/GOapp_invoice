@@ -38,7 +38,7 @@
                 </div>
             </div>
             <button type="button" id="add-job">Add Job</button><br><br>
-            <label>Job cost:</label>
+            <label>Jobs cost:</label>
             <input type="number" id="cost" readonly><br><br>
             <label>VAT (5%):</label>
             <input type="number" id="vat" readonly><br><br>
@@ -46,6 +46,7 @@
             <input type="number" id="total" readonly><br>
         </fieldset><br>
         <input type="button" id="generate-txt" value="Generate TXT file">
+        <input type="button" id="generate-xlsx" value="Generate XLSX file">
         <br><br>
         <fieldset>
             <legend>How to use:</legend>
@@ -53,13 +54,16 @@
                 1. Choose the Client Name.<br>
                 2. Choose the Date.<br>
                 3. Add and fill in the Jobs description, Quantity and Price.<br>
-                4. Generate TXT file with all the filled details and invoice number as a file name.
+                4. Generate TXT or XLSX file with all the filled details and invoice number as a file name.
             </label>
         </fieldset><br>
     </form>
 
     <script>
         $(document).ready(function() {
+
+            let maxJobRows = 1; // Default value
+
             // Load jobs data
             $.getJSON('/jobs', function(data) {
                 window.jobsData = data;
@@ -76,6 +80,11 @@
                         text: client.clientName
                     }));
                 });
+            });
+
+            //Load maximum number of rows from template.xlsx
+            $.getJSON('/max-job-rows', function(data) {
+                maxJobRows = data.maxRows;
             });
 
             function updateJobDropdowns() {
@@ -150,6 +159,10 @@
             });
 
             $('#add-job').click(function() {
+                if ($('.job-row').length >= maxJobRows) {
+                    alert(`Maximum number of jobs ${maxJobRows} has been reached for this invoice form.`);
+                    return;
+                }
                 var jobRow = $('.job-row:first').clone();
                 jobRow.find('.quantity, .price, .fullPrice').val('');
                 jobRow.append('<button type="button" class="delete-row" style="margin-left: 10px;">Delete</button>');
@@ -258,7 +271,7 @@
                     const fullPrice = $(this).find('.fullPrice').val();
 
                     if (jobDescription) {
-                        invoiceDetails += `Row ${index + 1}: ${jobDescription}, Quantity: ${quantity}, Price: ${price}, Full Price: ${fullPrice}\n`;
+                        invoiceDetails += `${index + 1}: ${jobDescription}, Quantity: ${quantity}, Price: ${price}, Full Price: ${fullPrice}\n`;
                     }
                 });
 
@@ -278,6 +291,113 @@
                 window.URL.revokeObjectURL(url);
             });
 
+        });
+
+        $('#generate-xlsx').click(function() {
+            // Check if invoice number is set
+            if (!$('#invoiceNumber').val()) {
+                alert('Please select both client and date to generate invoice number before downloading the file.');
+                return;
+            }
+
+            // Check for empty or zero values (same validation as in txt generation)
+            let issues = [];
+            let hasIssues = false;
+
+            $('.job-row').each(function(index) {
+                const rowNum = index + 1;
+                const jobDescription = $(this).find('.job-dropdown').val();
+                const quantity = parseFloat($(this).find('.quantity').val()) || 0;
+                const price = parseFloat($(this).find('.price').val()) || 0;
+                const fullPrice = parseFloat($(this).find('.fullPrice').val()) || 0;
+
+                if (!jobDescription) {
+                    issues.push(`Row ${rowNum}: Job Description is not selected`);
+                    hasIssues = true;
+                }
+                if (quantity === 0) {
+                    issues.push(`Row ${rowNum}: Quantity is zero`);
+                    hasIssues = true;
+                }
+                if (price === 0) {
+                    issues.push(`Row ${rowNum}: Price is zero`);
+                    hasIssues = true;
+                }
+                if (fullPrice === 0) {
+                    issues.push(`Row ${rowNum}: Full Price is zero`);
+                    hasIssues = true;
+                }
+            });
+
+            if (hasIssues) {
+                const message = 'The following issues were found:\n\n' + 
+                                issues.join('\n') + 
+                                '\n\nDo you want to proceed with generating the file anyway?';
+                
+                if (!confirm(message)) {
+                    return;
+                }
+            }
+
+            // Get the selected client details
+            let selectedClient = $('#client-dropdown').val();
+            let client = window.clientsData.find(c => c.abbreviation === selectedClient);
+
+            // Collect job details
+                let jobs = [];
+                $('.job-row').each(function(index) {
+                    jobs.push({
+                        jobName: $(this).find('.job-dropdown').val(),
+                        quantity: $(this).find('.quantity').val(),
+                        price: $(this).find('.price').val(),
+                        fullPrice: $(this).find('.fullPrice').val()
+                    });
+                });
+
+            // Prepare the data for the XLSX generation
+            let invoiceData = {
+                parentName: client.parentName,
+                address1: client.address1,
+                address2: client.address2,
+                phone: client.phone,
+                email: client.email,
+                invoiceNumber: $('#invoiceNumber').val(),
+                invoiceDate: $('#invoiceDate').val(),
+                cost: parseFloat($('#cost').val()),
+                vat: parseFloat($('#vat').val()),
+                total: parseFloat($('#total').val()),
+                jobs: jobs  // Add the jobs array to the invoice data
+            };
+
+            // Send request to generate XLSX
+            fetch('/generate-xlsx', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(invoiceData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Create a download link and trigger it
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = $('#invoiceNumber').val() + '.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to generate XLSX file');
+            });
         });
     </script>
 </body>

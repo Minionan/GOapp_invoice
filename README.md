@@ -11,6 +11,7 @@ Clone the repository with `git clone https://github.com/Minionan/GOapp_invoice.g
 
 1. Run `init_db.go` script by typing in terminal `go run init_db.go`
 2. Verify if a new SQLite database file was created in db folder
+3. The default data.db file has 3 default client records
 
 ## Run app
 

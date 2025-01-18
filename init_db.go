@@ -102,12 +102,12 @@ func main() {
 		JobName string
 		Price   string
 	}{
-		{JobName: "Direct BCBA Supervision", Price: "450"},
-		{JobName: "Direct ABA Therapy", Price: "200"},
-		{JobName: "ABA Training", Price: "450"},
-		{JobName: "BCBA Consultation", Price: "450"},
-		{JobName: "Admin fees", Price: "450"},
-		{JobName: "HiRasmus® Monthly Subscription", Price: "80"},
+		{JobName: "Software Development Services", Price: "500"},
+		{JobName: "Bug Fixing and Maintenance", Price: "400"},
+		{JobName: "API Integration", Price: "250"},
+		{JobName: "Database Design and Management", Price: "350"},
+		{JobName: "Project Management", Price: "500"},
+		{JobName: "Consultation Services", Price: "800"},
 	}
 
 	// Insert hard-coded jobs data into the database
