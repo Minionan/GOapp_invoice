@@ -47,6 +47,7 @@
         </fieldset><br>
         <input type="button" id="generate-txt" value="Generate TXT file">
         <input type="button" id="generate-xlsx" value="Generate XLSX file">
+        <input type="button" id="generate-pdf" value="Generate PDF file">
         <br><br>
         <fieldset>
             <legend>How to use:</legend>
@@ -397,6 +398,113 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('Failed to generate XLSX file');
+            });
+        });
+
+        $('#generate-pdf').click(function() {
+            // Check if invoice number is set
+            if (!$('#invoiceNumber').val()) {
+                alert('Please select both client and date to generate invoice number before downloading the file.');
+                return;
+            }
+
+            // Validation and data collection (same as in XLSX generation)
+            let issues = [];
+            let hasIssues = false;
+
+            $('.job-row').each(function(index) {
+                const rowNum = index + 1;
+                const jobDescription = $(this).find('.job-dropdown').val();
+                const quantity = parseFloat($(this).find('.quantity').val()) || 0;
+                const price = parseFloat($(this).find('.price').val()) || 0;
+                const fullPrice = parseFloat($(this).find('.fullPrice').val()) || 0;
+
+                if (!jobDescription) {
+                    issues.push(`Row ${rowNum}: Job Description is not selected`);
+                    hasIssues = true;
+                }
+                if (quantity === 0) {
+                    issues.push(`Row ${rowNum}: Quantity is zero`);
+                    hasIssues = true;
+                }
+                if (price === 0) {
+                    issues.push(`Row ${rowNum}: Price is zero`);
+                    hasIssues = true;
+                }
+                if (fullPrice === 0) {
+                    issues.push(`Row ${rowNum}: Full Price is zero`);
+                    hasIssues = true;
+                }
+            });
+
+            if (hasIssues) {
+                const message = 'The following issues were found:\n\n' + 
+                                issues.join('\n') + 
+                                '\n\nDo you want to proceed with generating the file anyway?';
+                
+                if (!confirm(message)) {
+                    return;
+                }
+            }
+
+            // Get the selected client details
+            let selectedClient = $('#client-dropdown').val();
+            let client = window.clientsData.find(c => c.abbreviation === selectedClient);
+
+            // Collect job details
+            let jobs = [];
+            $('.job-row').each(function(index) {
+                jobs.push({
+                    jobName: $(this).find('.job-dropdown').val(),
+                    quantity: $(this).find('.quantity').val(),
+                    price: $(this).find('.price').val(),
+                    fullPrice: $(this).find('.fullPrice').val()
+                });
+            });
+
+            // Prepare the data for the PDF generation
+            let invoiceData = {
+                parentName: client.parentName,
+                address1: client.address1,
+                address2: client.address2,
+                phone: client.phone,
+                email: client.email,
+                invoiceNumber: $('#invoiceNumber').val(),
+                invoiceDate: $('#invoiceDate').val(),
+                cost: parseFloat($('#cost').val()),
+                vat: parseFloat($('#vat').val()),
+                total: parseFloat($('#total').val()),
+                jobs: jobs
+            };
+
+            // Send request to generate PDF
+            fetch('/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(invoiceData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Create a download link and trigger it
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = $('#invoiceNumber').val() + '.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to generate PDF file');
             });
         });
     </script>
