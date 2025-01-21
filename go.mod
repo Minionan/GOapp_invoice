@@ -1,4 +1,4 @@
-module G0app_invoice
+module GOapp_invoice
 
 go 1.23.3
 

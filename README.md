@@ -16,13 +16,14 @@ Clone the repository with `git clone https://github.com/Minionan/GOapp_invoice.g
 
 ### Installing libreoffice
 
-Install libre office on your system
-For linux system a headless installation with calc will suffice
+Install LibreOffice on your system.
+For linux system a headless installation with calc will suffice.
 
 ### Replacing template.xlsx file
 
 Please replace the template.xlsx file with your company file.
-Be advised that libreoffice is used for pdf generation, thus formatting might differ from one used by excel. Some adjustments might be required to get the pdf output file to look as intended.
+Be advised that libreoffice is used for pdf generation, thus formatting might differ from one used by excel.
+Some adjustments might be required to get the pdf output file to look as intended.
 
 ## Run app
 
