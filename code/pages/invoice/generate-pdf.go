@@ -1,4 +1,4 @@
-// code/invoice/generate-pdf.go
+// code/pages/invoice/generate-pdf.go
 package invoice
 
 import (

@@ -22,6 +22,7 @@ func main() {
 
 	// Serve static files
 	http.Handle("/pages/", http.StripPrefix("/pages/", http.FileServer(http.Dir("pages"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	// Serve the invoice page
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -29,9 +30,37 @@ func main() {
 		tmpl.Execute(w, nil)
 	})
 
+	// Serve the invoiceForm page
+	http.HandleFunc("/invoice-form", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("pages/invoiceForm.html"))
+		tmpl.Execute(w, nil)
+	})
+
+	// Serve the invoiceJob page
+	http.HandleFunc("/invoice-job", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("pages/invoiceJob.html"))
+		tmpl.Execute(w, nil)
+	})
+
+	// Serve the invoiceJobEdit page
+	http.HandleFunc("/pages/invoice-job-edit", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("pages/invoiceJobEdit.html"))
+		tmpl.Execute(w, nil)
+	})
+
+	// Serve the invoiceJobAdd page
+	http.HandleFunc("/pages/invoice-job-add", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("pages/invoiceJobAdd.html"))
+		tmpl.Execute(w, nil)
+	})
+
 	// Register handlers from the invoice package
 	http.HandleFunc("/max-job-rows", invoice.GetMaxJobRowsHandler)
 	http.HandleFunc("/jobs", invoice.GetJobsHandler(db))
+	http.HandleFunc("/job-details", invoice.JobDetailsHandler(db))
+	http.HandleFunc("/job-update", invoice.JobUpdateHandler(db))
+	http.HandleFunc("/job-add", invoice.JobAddHandler(db))
+	http.HandleFunc("/job-delete", invoice.JobDeleteHandler(db))
 	http.HandleFunc("/clients", invoice.GetClientsHandler(db))
 	http.HandleFunc("/generate-xlsx", invoice.GenerateXLSX)
 	http.HandleFunc("/generate-pdf", invoice.GeneratePDF)

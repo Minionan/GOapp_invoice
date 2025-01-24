@@ -1,0 +1,513 @@
+/* static/styles.css */
+
+/*------------------------------------*\
+    Invoice Page Styles
+\*------------------------------------*/
+.invoice-container {
+    width: 860px; /* Match the width of client-add-container */
+    margin: 50px auto; /* Center the container */
+    padding: 25px; /* Add padding */
+    background-color: #fff; /* White background */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
+
+.invoice-container h1 {
+    text-align: center;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+.invoice-form fieldset {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.invoice-form fieldset legend {
+    font-weight: bold;
+    color: #333;
+}
+
+.invoice-form label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+.invoice-form input[type="text"],
+.invoice-form input[type="number"],
+.invoice-form input[type="date"],
+.invoice-form select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.invoice-form input[readonly],
+.invoice-form input[readonly]:focus {
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+}
+
+.invoice-form .job-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.invoice-form .job-row select,
+.invoice-form .job-row input {
+    flex: 1;
+}
+
+.invoice-form #job-labels {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.invoice-form #job-labels label {
+    flex: 1;
+    margin: 0;
+}
+
+.invoice-form #add-job {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.invoice-form #add-job:hover {
+    background-color: #45a049;
+}
+
+.invoice-form #generate-txt,
+.invoice-form #generate-xlsx,
+.invoice-form #generate-pdf {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.invoice-form #generate-txt:hover,
+.invoice-form #generate-xlsx:hover,
+.invoice-form #generate-pdf:hover {
+    background-color: #555;
+}
+/* static/styles.css */
+
+/*------------------------------------*\
+    Global Styles
+\*------------------------------------*/
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0; /* Reset default margins */
+    padding-top: 70px; /* To account for fixed navbar */
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+/*------------------------------------*\
+    Navbar Styles
+\*------------------------------------*/
+.navbar {
+    background-color: #333;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.nav-item:hover {
+    color: #ddd;
+}
+
+.nav-logout {
+    margin-right: 20px;
+}
+
+.logout-btn {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    background-color: #d32f2f;
+    border-radius: 4px;
+}
+
+.logout-btn:hover {
+    background-color: #b71c1c;
+}
+
+/*------------------------------------*\
+    Login Page Styles
+\*------------------------------------*/
+.login-container {
+    width: 300px;
+    margin: 50px auto;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+.login-form {
+    /* Additional styles for the login form if needed */
+}
+
+.login-form__label {
+    display: block;
+    margin-top: 15px;
+}
+
+.login-form__input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+
+.login-form__button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+}
+
+.login-container__error {
+    color: red;
+    text-align: center;
+}
+
+.login-container__register-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/*------------------------------------*\
+    Register Page Styles
+\*------------------------------------*/
+.register-container {
+    width: 300px;
+    margin: 50px auto;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+.register-form {
+    /* Additional styles for the register form if needed */
+}
+
+.register-form__label {
+    display: block;
+    margin-top: 15px;
+}
+
+.register-form__input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+
+.register-form__button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+}
+
+.register-container__error {
+    color: red;
+    text-align: center;
+}
+
+.register-container__login-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/*------------------------------------*\
+    Main Page Styles
+\*------------------------------------*/
+.main-container {
+    width: 800px;
+    margin: 50px auto;
+    /* Additional styles if needed */
+}
+
+/*------------------------------------*\
+    Clients Page Styles
+\*------------------------------------*/
+.clients-container {
+    width: 800px;
+    margin: 50px auto;
+}
+
+.clients-container h1 {
+    text-align: center;
+    color: #333;
+}
+
+.clients-actions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.clients-actions form {
+    margin: 0;
+}
+
+.clients-actions .button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.clients-actions .button:hover {
+    background-color: #555;
+}
+
+.clients-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.clients-table th,
+.clients-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+.clients-table th {
+    background-color: #f2f2f2;
+}
+
+.clients-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/*------------------------------------*\
+    Client Add Page Styles
+\*------------------------------------*/
+.client-add-container {
+    width: 500px;
+    margin: 50px auto;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+.client-add-form {
+    /* Additional styles for the Add Client form if needed */
+}
+
+.client-add-form__group {
+    margin-top: 15px;
+}
+
+.client-add-form__label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.client-add-form__input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.client-add-form__buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.client-add-form__button.submit-btn {
+    background-color: #4CAF50;
+}
+
+.client-add-form__button.cancel-btn {
+    background-color: #f44336;
+}
+
+.client-add-form__button {
+    padding: 8px 15px;
+    border-radius: 4px;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    flex: 1;
+}
+
+.client-add-form__button:hover {
+    opacity: 0.9;
+}
+
+/*------------------------------------*\
+    Client Edit Page Styles
+\*------------------------------------*/
+.edit-btn {
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.client-edit-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.client-edit-form__button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.client-edit-form__button.save {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.client-edit-form__button.save:hover {
+    background-color: #45a049;
+}
+
+.client-edit-form__button.delete {
+    background-color: #f44336;
+    color: white;
+}
+
+.client-edit-form__button.delete:hover {
+    background-color: #da190b;
+}
+
+.client-edit-form__button.cancel {
+    background-color: #ffd700;
+    color: white;
+}
+
+.client-edit-form__button.cancel:hover {
+    background-color: #dab700;
+}
+
+/*------------------------------------*\
+    Export Clients Page Styles
+\*------------------------------------*/
+.export-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+}
+.client-list {
+    margin: 20px 0;
+}
+.client-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+.client-item label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.action-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+.client-exp-form__button.submit-btn {
+    background-color: #4CAF50;
+}
+.client-exp-form__button.cancel-btn {
+    background-color: #f44336;
+    text-decoration: none; /* Remove underline */
+    text-align: center;   /* Center text */
+    display: inline-block; /* Ensure it behaves like a button */
+}
+.client-exp-form__button {
+    padding: 8px 15px;
+    border-radius: 4px;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    flex: 1;
+    font-size: 16px; /* Set consistent font size */
+}
+.client-exp-form__button:hover {
+    opacity: 0.9;
+}
+
+/*------------------------------------*\
+    Error Messages
+\*------------------------------------*/
+.error {
+    color: red;
+    text-align: center;
+}
+
+/*------------------------------------*\
+    Additional Styles
+\*------------------------------------*/
+.button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #555;
+}

@@ -8,6 +8,7 @@ import (
 )
 
 type Job struct {
+	ID        int    `json:"id"`
 	JobName   string `json:"jobName"`
 	Price     string `json:"price"`
 	Quantity  string `json:"quantity"`

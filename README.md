@@ -3,6 +3,7 @@
 This is a simple invoice-generating app written with JS and GO.
 It is a good start when creating your web app where invoicing functionality is required.
 This version of the app can generate the invoice in txt, xlsx and pdf format.
+Added also job details edit functionality allowing users to customise their job entry on invoice.
 
 ## Setup
 

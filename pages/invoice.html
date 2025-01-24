@@ -1,64 +1,17 @@
+<!-- pages/invoice.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Form</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="pages/invoice-form.js"></script>
+    <title>Invoice Page</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <h1 style="font-family:verdana">Invoice Form</h1>
-    <form id="invoiceForm">
-        <fieldset>
-            <legend>Billed to:</legend>
-            <label><strong>Client Name:</strong></label>
-            <select id="client-dropdown">
-                <option value="">Choose client...</option>
-            </select>
-            <div id="client-details"></div>
-        </fieldset><br>
-        <fieldset>
-            <legend>Invoice Details</legend>
-            <label for="invoiceDate"><strong>Date:</strong></label>
-            <input type="date" id="invoiceDate"><br><br>
-            <label>Invoice Number:</label>
-            <input type="text" id="invoiceNumber" readonly><br><br>
-            <div id="job-labels">
-                <label style="margin-left: 40px; margin-right: 120px;">Job Description</label>
-                <label style="margin-right: 115px;">Quantity</label>
-                <label style="margin-right: 135px;">Price</label>
-                <label>Full Price</label>
-            </div>
-            <div id="job-rows">
-                <div class="job-row">
-                    <select class="job-dropdown"></select>
-                    <input type="number" class="quantity" placeholder="Quantity" min="0">
-                    <input type="number" class="price" placeholder="Price" min="0">
-                    <input type="number" class="fullPrice" placeholder="Full Price" readonly>
-                </div>
-            </div>
-            <button type="button" id="add-job">Add Job</button><br><br>
-            <label>Jobs cost:</label>
-            <input type="number" id="cost" readonly><br><br>
-            <label>VAT (5%):</label>
-            <input type="number" id="vat" readonly><br><br>
-            <label>Total Amount:</label>
-            <input type="number" id="total" readonly><br>
-        </fieldset><br>
-        <input type="button" id="generate-txt" value="Generate TXT file">
-        <input type="button" id="generate-xlsx" value="Generate XLSX file">
-        <input type="button" id="generate-pdf" value="Generate PDF file">
-        <br><br>
-        <fieldset>
-            <legend>How to use:</legend>
-            <label>
-                1. Choose the Client Name.<br>
-                2. Choose the Date.<br>
-                3. Add and fill in the Jobs description, Quantity and Price.<br>
-                4. Generate TXT, XLSX or PDF file with all the filled details and invoice number as a file name.
-            </label>
-        </fieldset><br>
-    </form>
+    <div class="invoice-container">
+        <h1>Welcome!</h1>
+        <p>Here you can create, store, customise and retreive your invoices.</p>
+        <button onclick="window.location.href='/pages/invoiceForm.html'">Invoice Form</button>
+        <button onclick="window.location.href='/pages/invoiceJob.html'">Job Edit</button>
+    </div>
 </body>
 </html>

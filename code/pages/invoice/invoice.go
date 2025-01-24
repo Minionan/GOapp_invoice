@@ -1,4 +1,4 @@
-// code/invoice/invoice.go
+// code/pages/invoice/invoice.go
 package invoice
 
 import (
@@ -70,32 +70,40 @@ func GetMaxJobRowsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]int{"maxRows": maxRows})
 }
 
+// List all jobs in the database
 func GetJobsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rows, err := db.Query("SELECT jobName, price FROM jobs")
+		// Query the database for job entries
+		rows, err := db.Query("SELECT id, jobName, price FROM jobs") // Include 'id' in the query
 		if err != nil {
 			http.Error(w, "Failed to query jobs data", http.StatusInternalServerError)
 			return
 		}
 		defer rows.Close()
 
+		// Iterate over each row
 		var jobs []database.Job
 		for rows.Next() {
 			var job database.Job
-			if err := rows.Scan(&job.JobName, &job.Price); err != nil {
+			// Scan the columns (include 'id' here)
+			if err := rows.Scan(&job.ID, &job.JobName, &job.Price); err != nil {
 				http.Error(w, "Failed to scan job data", http.StatusInternalServerError)
 				return
 			}
+			// Accumulate each job into the jobs slice.
 			jobs = append(jobs, job)
 		}
 
+		// Send the list of jobs in JSON format.
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(jobs)
 	}
 }
 
+// List client details from teh database
 func GetClientsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Query the database for client information.
 		rows, err := db.Query("SELECT clientName, parentName, address1, address2, phone, email, abbreviation FROM clients")
 		if err != nil {
 			http.Error(w, "Failed to query clients data", http.StatusInternalServerError)
@@ -104,15 +112,28 @@ func GetClientsHandler(db *sql.DB) http.HandlerFunc {
 		defer rows.Close()
 
 		var clients []database.Client
+
+		// Iterate over the results
 		for rows.Next() {
 			var client database.Client
-			if err := rows.Scan(&client.ClientName, &client.ParentName, &client.Address1, &client.Address2, &client.Phone, &client.Email, &client.Abbreviation); err != nil {
+			// Scan each column into the respective Client struct fields.
+			if err := rows.Scan(
+				&client.ClientName,
+				&client.ParentName,
+				&client.Address1,
+				&client.Address2,
+				&client.Phone,
+				&client.Email,
+				&client.Abbreviation,
+			); err != nil {
 				http.Error(w, "Failed to scan client data", http.StatusInternalServerError)
 				return
 			}
+			// Accumulate client info into the clients slice.
 			clients = append(clients, client)
 		}
 
+		// Send the client list in JSON format.
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(clients)
 	}
