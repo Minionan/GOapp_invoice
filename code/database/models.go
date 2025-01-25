@@ -26,13 +26,14 @@ type Client struct {
 }
 
 type InvoiceData struct {
+	InvoiceNumber string  `json:"invoiceNumber"`
+	InvoiceDate   string  `json:"invoiceDate"`
+	ClientName    string  `json:"clientName"`
 	ParentName    string  `json:"parentName"`
 	Address1      string  `json:"address1"`
 	Address2      string  `json:"address2"`
 	Phone         string  `json:"phone"`
 	Email         string  `json:"email"`
-	InvoiceNumber string  `json:"invoiceNumber"`
-	InvoiceDate   string  `json:"invoiceDate"`
 	Cost          float64 `json:"cost"`
 	VAT           float64 `json:"vat"`
 	Total         float64 `json:"total"`

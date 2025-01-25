@@ -1,4 +1,4 @@
-// code/invoice/generate-xlsx.go
+// code/pages/invoice/generate-xlsx.go
 package invoice
 
 import (

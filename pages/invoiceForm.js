@@ -1,3 +1,4 @@
+// pages/invoiceForm.js
 $(document).ready(function() {
     let maxJobRows = 1; // Default value
 
@@ -440,6 +441,59 @@ $(document).ready(function() {
         .catch(error => {
             console.error('Error:', error);
             alert('Failed to generate PDF file');
+        });
+    });
+
+    $('#save-invoice').click(function() {
+        // Check if invoice number is set
+        if (!$('#invoiceNumber').val()) {
+            alert('Please select both client and date to generate invoice number before saving the invoice.');
+            return;
+        }
+    
+        // Get the selected client details
+        let selectedClient = $('#client-dropdown').val();
+        let client = window.clientsData.find(c => c.abbreviation === selectedClient);
+    
+        // Prepare the data for saving to the database
+        let invoiceData = {
+            invoiceNumber: $('#invoiceNumber').val(),
+            invoiceDate: $('#invoiceDate').val(),
+            clientName: client.clientName,
+            parentName: client.parentName,
+            address1: client.address1,
+            address2: client.address2,
+            phone: client.phone,
+            email: client.email,
+            cost: parseFloat($('#cost').val()),
+            VAT: parseFloat($('#vat').val()),
+            total: parseFloat($('#total').val())
+        };
+    
+        // Send request to save the invoice to the database
+        fetch('/invoice-save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(invoiceData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Invoice saved to database successfully!');
+            } else {
+                alert('Failed to save invoice to database.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to save invoice to database.');
         });
     });
 });

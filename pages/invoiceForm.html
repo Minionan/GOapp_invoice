@@ -7,7 +7,7 @@
     <title>Invoice Form</title>
     <link rel="stylesheet" href="/static/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="invoiceForm.js"></script>
+    <script src="/pages/invoiceForm.js"></script>
 </head>
 <body>
     <div class="invoice-container">
@@ -49,6 +49,8 @@
                 <label>Total Amount:</label>
                 <input type="number" id="total" readonly><br>
             </fieldset><br>
+            <input type="button" id="save-invoice" value="Save Invoice">
+            <br><br>
             <input type="button" id="generate-txt" value="Generate TXT file">
             <input type="button" id="generate-xlsx" value="Generate XLSX file">
             <input type="button" id="generate-pdf" value="Generate PDF file">
@@ -61,7 +63,8 @@
                     1. Choose the Client Name.<br>
                     2. Choose the Date.<br>
                     3. Add and fill in the Jobs description, Quantity and Price.<br>
-                    4. Generate TXT, XLSX or PDF file with all the filled details and invoice number as a file name.
+                    4. When ready, save invoice to database.<br>
+                    5. Generate TXT, XLSX or PDF file with all the filled details and invoice number as a file name.
                 </label>
             </fieldset><br>
         </form>

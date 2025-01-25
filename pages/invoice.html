@@ -5,13 +5,35 @@
     <meta charset="UTF-8">
     <title>Invoice Page</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/pages/invoice.js"></script>
 </head>
 <body>
     <div class="invoice-container">
         <h1>Welcome!</h1>
         <p>Here you can create, store, customise and retreive your invoices.</p>
-        <button onclick="window.location.href='/pages/invoiceForm.html'">Invoice Form</button>
-        <button onclick="window.location.href='/pages/invoiceJob.html'">Job Edit</button>
+        <button onclick="window.location.href='/pages/invoiceForm.html'">Create Invoice</button>
+        <button onclick="window.location.href='/pages/invoiceJob.html'">Jobs Edit</button>
+        <br><br>
+        <div id="invoice-list">
+            <h2>Stored invoices list</h2>
+            <table id="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Invoice Number</th>
+                        <th>Client Name</th>
+                        <th>Parent Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Cost</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Invoices will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>

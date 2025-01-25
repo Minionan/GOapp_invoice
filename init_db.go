@@ -47,6 +47,27 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Create the invoices table
+	createInvoicesTable := `
+	CREATE TABLE IF NOT EXISTS invoices (
+		invoiceNumber TEXT PRIMARY KEY,
+		invoiceDate TEXT NOT NULL,
+		clientName TEXT NOT NULL,
+		parentName TEXT NOT NULL,
+		address1 TEXT NOT NULL,
+		address2 TEXT NOT NULL,
+		phone TEXT NOT NULL,
+		email TEXT NOT NULL,
+		cost REAL NOT NULL,
+		VAT REAL NOT NULL,
+		total REAL NOT NULL
+	);
+	`
+	_, err = db.Exec(createInvoicesTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Hard-coded clients data
 	clients := []struct {
 		ClientName   string

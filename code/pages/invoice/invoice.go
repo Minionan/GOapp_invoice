@@ -100,7 +100,7 @@ func GetJobsHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-// List client details from teh database
+// List client details from the database
 func GetClientsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Query the database for client information.
@@ -136,5 +136,35 @@ func GetClientsHandler(db *sql.DB) http.HandlerFunc {
 		// Send the client list in JSON format.
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(clients)
+	}
+}
+
+// List invoices stored in the database
+func GetInvoicesHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Query the database for invoice entries
+		rows, err := db.Query("SELECT invoiceNumber, clientName, parentName, phone, email, cost, total FROM invoices")
+		if err != nil {
+			http.Error(w, "Failed to query invoices data", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		// Iterate over each row
+		var invoices []database.InvoiceData
+		for rows.Next() {
+			var invoice database.InvoiceData
+			// Scan the columns
+			if err := rows.Scan(&invoice.InvoiceNumber, &invoice.ClientName, &invoice.ParentName, &invoice.Phone, &invoice.Email, &invoice.Cost, &invoice.Total); err != nil {
+				http.Error(w, "Failed to scan invoice data", http.StatusInternalServerError)
+				return
+			}
+			// Accumulate each invoice into the invoices slice
+			invoices = append(invoices, invoice)
+		}
+
+		// Send the list of invoices in JSON format
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(invoices)
 	}
 }
