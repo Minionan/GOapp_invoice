@@ -19,14 +19,26 @@ func SaveInvoiceHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// Insert the invoice data into the database
+		// Insert the invoice data into the invoices table
 		_, err = db.Exec(`
-			INSERT INTO invoices (invoiceNumber, invoiceDate, clientName, parentName, address1, address2, phone, email, cost, VAT, total)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		`, invoiceData.InvoiceNumber, invoiceData.InvoiceDate, invoiceData.ClientName, invoiceData.ParentName, invoiceData.Address1, invoiceData.Address2, invoiceData.Phone, invoiceData.Email, invoiceData.Cost, invoiceData.VAT, invoiceData.Total)
+            INSERT INTO invoices (invoiceNumber, invoiceDate, clientName, parentName, address1, address2, phone, email, cost, VAT, total)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, invoiceData.InvoiceNumber, invoiceData.InvoiceDate, invoiceData.ClientName, invoiceData.ParentName, invoiceData.Address1, invoiceData.Address2, invoiceData.Phone, invoiceData.Email, invoiceData.Cost, invoiceData.VAT, invoiceData.Total)
 		if err != nil {
 			http.Error(w, "Failed to save invoice to database", http.StatusInternalServerError)
 			return
+		}
+
+		// Insert job-row data into the invoices_job_row table
+		for _, job := range invoiceData.Jobs {
+			_, err = db.Exec(`
+                INSERT INTO invoices_job_row (invoiceNumber, jobName, quantity, price, fullPrice)
+                VALUES (?, ?, ?, ?, ?)
+            `, invoiceData.InvoiceNumber, job.JobName, job.Quantity, job.Price, job.FullPrice)
+			if err != nil {
+				http.Error(w, "Failed to save job-row data to database", http.StatusInternalServerError)
+				return
+			}
 		}
 
 		// Return success response

@@ -68,6 +68,23 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Create the invoices-job-row table
+	createInvoicesJobRowTable := `
+	CREATE TABLE IF NOT EXISTS invoices_job_row (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		invoiceNumber TEXT NOT NULL,
+		jobName TEXT NOT NULL,
+		quantity TEXT NOT NULL,
+		price TEXT NOT NULL,
+		fullPrice TEXT NOT NULL,
+		FOREIGN KEY (invoiceNumber) REFERENCES invoices(invoiceNumber)
+	);
+	`
+	_, err = db.Exec(createInvoicesJobRowTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Hard-coded clients data
 	clients := []struct {
 		ClientName   string

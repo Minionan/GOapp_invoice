@@ -63,7 +63,7 @@ $(document).ready(function() {
         let client = window.clientsData.find(c => c.abbreviation === selectedClient);
         if (client) {
             $('#client-details').html(
-                '<strong>Parent Name:</strong> ' + client.parentName + '<br>' +
+                '<strong>Payee Name:</strong> ' + client.parentName + '<br>' +
                 '<strong>Address 1:</strong> ' + client.address1 + '<br>' +
                 (client.address2 ? '<strong>Address 2:</strong> ' + client.address2 + '<br>' : '') +
                 '<strong>Phone:</strong> ' + client.phone + '<br>' +
@@ -140,6 +140,52 @@ $(document).ready(function() {
         var fullPrice = quantity * price;
         row.find('.fullPrice').val(fullPrice.toFixed(2));
         calculateTotals();
+    }
+
+    function updateClientDetailsAndInvoiceNumber() {
+        let selectedClient = $('#client-dropdown').val();
+        let selectedDate = $('#invoiceDate').val();
+        
+        // Clear fields if no client selected
+        if (!selectedClient || !window.clientsData) {
+            $('#client-details').html('');
+            $('#invoiceNumber').val('');
+            return;
+        }
+    
+        // Update client details
+        let client = window.clientsData.find(c => c.abbreviation === selectedClient);
+        if (client) {
+            $('#client-details').html(
+                '<strong>Parent Name:</strong> ' + client.parentName + '<br>' +
+                '<strong>Address 1:</strong> ' + client.address1 + '<br>' +
+                (client.address2 ? '<strong>Address 2:</strong> ' + client.address2 + '<br>' : '') +
+                '<strong>Phone:</strong> ' + client.phone + '<br>' +
+                '<strong>Email:</strong> ' + client.email
+            );
+            
+            // Update invoice number if date is selected
+            if (selectedDate) {
+                let dateObj = new Date(selectedDate);
+                let year = dateObj.getFullYear();
+                let month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                let invoiceNumber = `${year}_${month}_${client.abbreviation}`;
+                $('#invoiceNumber').val(invoiceNumber);
+    
+                // Check if the invoice number already exists
+                $.getJSON('/invoice-number-check?invoiceNumber=' + invoiceNumber, function(data) {
+                    if (data.exists) {
+                        alert('An invoice with the same number already exists. Please choose a different date or client. If you want to change the existing invoice, please use the Invoice Edit Form.');
+                        $('#client-dropdown').val(''); // Clear client dropdown
+                        $('#invoiceDate').val(''); // Clear date field
+                        $('#invoiceNumber').val(''); // Clear invoice number field
+                        $('#client-details').html(''); // Clear client details
+                    }
+                });
+            } else {
+                $('#invoiceNumber').val('');
+            }
+        }
     }
 
     $('#generate-txt').click(function() {
@@ -450,10 +496,60 @@ $(document).ready(function() {
             alert('Please select both client and date to generate invoice number before saving the invoice.');
             return;
         }
+
+        // Validation and data collection (same as in XLSX generation)
+        let issues = [];
+        let hasIssues = false;
+
+        $('.job-row').each(function(index) {
+            const rowNum = index + 1;
+            const jobDescription = $(this).find('.job-dropdown').val();
+            const quantity = parseFloat($(this).find('.quantity').val()) || 0;
+            const price = parseFloat($(this).find('.price').val()) || 0;
+            const fullPrice = parseFloat($(this).find('.fullPrice').val()) || 0;
+
+            if (!jobDescription) {
+                issues.push(`Row ${rowNum}: Job Description is not selected`);
+                hasIssues = true;
+            }
+            if (quantity === 0) {
+                issues.push(`Row ${rowNum}: Quantity is zero`);
+                hasIssues = true;
+            }
+            if (price === 0) {
+                issues.push(`Row ${rowNum}: Price is zero`);
+                hasIssues = true;
+            }
+            if (fullPrice === 0) {
+                issues.push(`Row ${rowNum}: Full Price is zero`);
+                hasIssues = true;
+            }
+        });
+
+        if (hasIssues) {
+            const message = 'The following issues were found:\n\n' + 
+                            issues.join('\n') + 
+                            '\n\nDo you want to proceed with generating the file anyway?';
+            
+            if (!confirm(message)) {
+                return;
+            }
+        }
     
         // Get the selected client details
         let selectedClient = $('#client-dropdown').val();
         let client = window.clientsData.find(c => c.abbreviation === selectedClient);
+    
+        // Collect job details
+        let jobs = [];
+        $('.job-row').each(function(index) {
+            jobs.push({
+                jobName: $(this).find('.job-dropdown').val(),
+                quantity: $(this).find('.quantity').val(),
+                price: $(this).find('.price').val(),
+                fullPrice: $(this).find('.fullPrice').val()
+            });
+        });
     
         // Prepare the data for saving to the database
         let invoiceData = {
@@ -467,7 +563,8 @@ $(document).ready(function() {
             email: client.email,
             cost: parseFloat($('#cost').val()),
             VAT: parseFloat($('#vat').val()),
-            total: parseFloat($('#total').val())
+            total: parseFloat($('#total').val()),
+            jobs: jobs  // Add the jobs array to the invoice data
         };
     
         // Send request to save the invoice to the database

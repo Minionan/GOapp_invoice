@@ -70,6 +70,35 @@ func GetMaxJobRowsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]int{"maxRows": maxRows})
 }
 
+func CheckInvoiceNumberExists(db *sql.DB, invoiceNumber string) (bool, error) {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM invoices WHERE invoiceNumber = ?)", invoiceNumber).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+// Check if the chosen invoiceNumber is already stored in the database
+func CheckInvoiceNumberExistsHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		invoiceNumber := r.URL.Query().Get("invoiceNumber")
+		if invoiceNumber == "" {
+			http.Error(w, "Invoice number is required", http.StatusBadRequest)
+			return
+		}
+
+		exists, err := CheckInvoiceNumberExists(db, invoiceNumber)
+		if err != nil {
+			http.Error(w, "Failed to check invoice number", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]bool{"exists": exists})
+	}
+}
+
 // List all jobs in the database
 func GetJobsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +172,7 @@ func GetClientsHandler(db *sql.DB) http.HandlerFunc {
 func GetInvoicesHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Query the database for invoice entries
-		rows, err := db.Query("SELECT invoiceNumber, clientName, parentName, phone, email, cost, total FROM invoices")
+		rows, err := db.Query("SELECT invoiceNumber, parentName, email, cost, total, invoiceDate FROM invoices ORDER BY invoiceDate DESC LIMIT 10")
 		if err != nil {
 			http.Error(w, "Failed to query invoices data", http.StatusInternalServerError)
 			return
@@ -155,7 +184,7 @@ func GetInvoicesHandler(db *sql.DB) http.HandlerFunc {
 		for rows.Next() {
 			var invoice database.InvoiceData
 			// Scan the columns
-			if err := rows.Scan(&invoice.InvoiceNumber, &invoice.ClientName, &invoice.ParentName, &invoice.Phone, &invoice.Email, &invoice.Cost, &invoice.Total); err != nil {
+			if err := rows.Scan(&invoice.InvoiceNumber, &invoice.ParentName, &invoice.Email, &invoice.Cost, &invoice.Total, &invoice.InvoiceDate); err != nil {
 				http.Error(w, "Failed to scan invoice data", http.StatusInternalServerError)
 				return
 			}

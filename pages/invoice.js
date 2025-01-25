@@ -10,9 +10,7 @@ $(document).ready(function() {
             const row = `
                 <tr>
                     <td>${invoice.invoiceNumber}</td>
-                    <td>${invoice.clientName}</td>
                     <td>${invoice.parentName}</td>
-                    <td>${invoice.phone}</td>
                     <td>${invoice.email}</td>
                     <td>${invoice.cost}</td>
                     <td>${invoice.total}</td>
