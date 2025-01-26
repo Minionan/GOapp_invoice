@@ -67,6 +67,8 @@ func main() {
 	http.HandleFunc("/invoice-save", invoice.SaveInvoiceHandler(db))
 	http.HandleFunc("/invoice-list", invoice.GetInvoicesHandler(db))
 	http.HandleFunc("/invoice-number-check", invoice.CheckInvoiceNumberExistsHandler(db))
+	http.HandleFunc("/invoice-update", invoice.UpdateInvoiceHandler(db))
+	http.HandleFunc("/invoice-delete", invoice.DeleteInvoiceHandler(db))
 
 	// Start the server
 	log.Println("Starting server at port 8080")

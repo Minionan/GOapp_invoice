@@ -1,0 +1,90 @@
+<!-- pages/invoiceEdit.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Invoice</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/pages/invoiceEdit.js"></script>
+</head>
+<body>
+    <div class="invoice-edit-container">
+        <div class="invoice-container">
+            <h1>Invoice Edit</h1>
+            <label for="invoice-select">Select Invoice:</label>
+            <select id="invoice-select">
+                <option value="">-- Select an Invoice --</option>
+            </select>
+            <div id="invoice-details">
+                <h2>Invoice Details</h2>
+                <label><strong>Invoice Number:</strong></label>
+                <input type="text" id="invoiceNumber" readonly><br><br>
+
+                <label><strong>Invoice Date:</strong></label>
+                <input type="date" id="invoiceDate"><br><br>
+
+                <label><strong>Client Name:</strong></label>
+                <input type="text" id="clientName"><br><br>
+
+                <label><strong>Parent Name:</strong></label>
+                <input type="text" id="parentName"><br><br>
+
+                <label><strong>Address 1:</strong></label>
+                <input type="text" id="address1"><br><br>
+
+                <label><strong>Address 2:</strong></label>
+                <input type="text" id="address2"><br><br>
+
+                <label><strong>Phone:</strong></label>
+                <input type="text" id="phone"><br><br>
+
+                <label><strong>Email:</strong></label>
+                <input type="text" id="email">
+
+                <h3>Jobs</h3>
+                <div id="job-labels">
+                    <label style="margin-left: 5px; margin-right: 335px;">Job Description</label>
+                    <label style="margin-right: 60px;">Quantity</label>
+                    <label style="margin-right: 80px;">Price</label>
+                    <label>Full Price</label>
+                </div>
+                <div id="job-rows">
+                    <!-- Job rows will be dynamically inserted here -->
+                </div>
+
+                <br>
+                <button type="button" id="add-job">Add Job</button>
+                <br><br>
+
+                <label><strong>Cost:</strong></label>
+                <input type="number" id="cost" readonly><br><br>
+
+                <label><strong>VAT:</strong></label>
+                <input type="number" id="vat" readonly><br><br>
+
+                <label><strong>Total:</strong></label>
+                <input type="number" id="total" readonly><br><br>
+
+            </div>
+            <input type="button" id="save-invoice" value="Save Invoice">
+            <input type="button" id="delete-invoice" value="Delete Invoice">
+            <br><br>
+            <input type="button" id="generate-txt" value="Generate TXT file">
+            <input type="button" id="generate-xlsx" value="Generate XLSX file">
+            <input type="button" id="generate-pdf" value="Generate PDF file">
+            <br><br>
+            <button type="button" onclick="window.location.href='/'">Back</button>
+            <br><br>
+            <fieldset>
+                <legend>How to use:</legend>
+                <label>
+                    1. If you need to corect one of your invoices, this is the right place.<br>
+                    2. All fileds except Full Price, Cost , VAT and Total are editable.<br>
+                    3. 
+                </label>
+            </fieldset><br>
+        </div>
+    </div>
+</body>
+</html>

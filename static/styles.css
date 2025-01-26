@@ -1,6 +1,30 @@
 /* static/styles.css */
 
 /*------------------------------------*\
+    Invoice Page Styles
+\*------------------------------------*/
+
+#invoice-list {
+    margin-top: 20px;
+}
+
+#invoice-table {
+    /* width: 100%; */
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#invoice-table th, #invoice-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#invoice-table th {
+    background-color: #f2f2f2;
+}
+
+/*------------------------------------*\
     Invoice Form Page Styles
 \*------------------------------------*/
 .invoice-container {
@@ -110,25 +134,37 @@
 }
 
 /*------------------------------------*\
-    Invoice Page Styles
+    Invoice Edit Page Styles
 \*------------------------------------*/
-
-#invoice-list {
-    margin-top: 20px;
-}
-
-#invoice-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-#invoice-table th, #invoice-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+.invoice-edit-container #job-labels label {
+    flex: 1;
     text-align: left;
+    margin-right: 10px;
 }
 
-#invoice-table th {
-    background-color: #f2f2f2;
+.invoice-edit-container #job-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.invoice-edit-container .job-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.invoice-edit-container .job-row input[type="text"],
+.invoice-edit-container .job-row input[type="number"] {
+    flex: 1;
+    margin-right: 10px;
+    min-width: 100px; /* Minimum width to ensure usability */
+}
+
+.invoice-edit-container .job-row input[type="number"] {
+    max-width: 100px; /* Limit width for quantity, price, and fullPrice */
+}
+
+.invoice-edit-container .job-row .delete-job {
+    margin-left: 10px;
 }

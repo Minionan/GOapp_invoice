@@ -168,32 +168,85 @@ func GetClientsHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-// List invoices stored in the database
+// List invoices stored in the database (used for displaying invoices on invoice.html and invoiceEdit.html pages)
 func GetInvoicesHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Query the database for invoice entries
-		rows, err := db.Query("SELECT invoiceNumber, parentName, email, cost, total, invoiceDate FROM invoices ORDER BY invoiceDate DESC LIMIT 10")
-		if err != nil {
-			http.Error(w, "Failed to query invoices data", http.StatusInternalServerError)
-			return
-		}
-		defer rows.Close()
+		invoiceNumber := r.URL.Query().Get("invoiceNumber")
 
-		// Iterate over each row
-		var invoices []database.InvoiceData
-		for rows.Next() {
+		if invoiceNumber != "" {
+			// Fetch detailed invoice data for a specific invoice
 			var invoice database.InvoiceData
-			// Scan the columns
-			if err := rows.Scan(&invoice.InvoiceNumber, &invoice.ParentName, &invoice.Email, &invoice.Cost, &invoice.Total, &invoice.InvoiceDate); err != nil {
-				http.Error(w, "Failed to scan invoice data", http.StatusInternalServerError)
+			err := db.QueryRow(`
+                SELECT invoiceNumber, invoiceDate, clientName, parentName, address1, address2, phone, email, cost, VAT, total
+                FROM invoices
+                WHERE invoiceNumber = ?
+            `, invoiceNumber).Scan(
+				&invoice.InvoiceNumber,
+				&invoice.InvoiceDate,
+				&invoice.ClientName,
+				&invoice.ParentName,
+				&invoice.Address1,
+				&invoice.Address2,
+				&invoice.Phone,
+				&invoice.Email,
+				&invoice.Cost,
+				&invoice.VAT,
+				&invoice.Total,
+			)
+			if err != nil {
+				http.Error(w, "Failed to fetch invoice details", http.StatusInternalServerError)
 				return
 			}
-			// Accumulate each invoice into the invoices slice
-			invoices = append(invoices, invoice)
-		}
 
-		// Send the list of invoices in JSON format
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(invoices)
+			// Fetch the jobs associated with the invoice
+			rows, err := db.Query(`
+                SELECT jobName, quantity, price, fullPrice
+                FROM invoices_job_row
+                WHERE invoiceNumber = ?
+            `, invoiceNumber)
+			if err != nil {
+				http.Error(w, "Failed to fetch job details", http.StatusInternalServerError)
+				return
+			}
+			defer rows.Close()
+
+			var jobs []database.Job
+			for rows.Next() {
+				var job database.Job
+				if err := rows.Scan(&job.JobName, &job.Quantity, &job.Price, &job.FullPrice); err != nil {
+					http.Error(w, "Failed to scan job details", http.StatusInternalServerError)
+					return
+				}
+				jobs = append(jobs, job)
+			}
+
+			invoice.Jobs = jobs
+
+			// Return the detailed invoice data in JSON format
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(invoice)
+		} else {
+			// Fetch a list of all invoices (for invoice.html)
+			rows, err := db.Query("SELECT invoiceNumber, parentName, email, cost, total, invoiceDate FROM invoices ORDER BY invoiceDate DESC LIMIT 10")
+			if err != nil {
+				http.Error(w, "Failed to query invoices data", http.StatusInternalServerError)
+				return
+			}
+			defer rows.Close()
+
+			var invoices []database.InvoiceData
+			for rows.Next() {
+				var invoice database.InvoiceData
+				if err := rows.Scan(&invoice.InvoiceNumber, &invoice.ParentName, &invoice.Email, &invoice.Cost, &invoice.Total, &invoice.InvoiceDate); err != nil {
+					http.Error(w, "Failed to scan invoice data", http.StatusInternalServerError)
+					return
+				}
+				invoices = append(invoices, invoice)
+			}
+
+			// Return the list of invoices in JSON format
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(invoices)
+		}
 	}
 }
