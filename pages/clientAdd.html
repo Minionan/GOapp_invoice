@@ -1,0 +1,72 @@
+<!-- pages/clientAdd.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Add Client</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="invoice-container">
+        <h1>Add Client</h1>
+        <form id="clientForm">
+            <label for="clientName">Client Name:</label>
+            <input type="text" id="clientName" name="clientName" required><br><br>
+            
+            <label for="parentName">Payee Name:</label>
+            <input type="text" id="parentName" name="parentName" required><br><br>
+            
+            <label for="address1">Address 1:</label>
+            <input type="text" id="address1" name="address1" required><br><br>
+            
+            <label for="address2">Address 2:</label>
+            <input type="text" id="address2" name="address2" required><br><br>
+            
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" name="phone" required><br><br>
+            
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email" required><br><br>
+            
+            <label for="abbreviation">Abbreviation:</label>
+            <input type="text" id="abbreviation" name="abbreviation" required><br><br>
+            
+            <button type="submit">Create Client</button>
+            <button type="button" onclick="window.location.href='/pages/client.html'">Back</button>
+        </form>
+    </div>
+
+    <script>
+    document.getElementById('clientForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const clientName = document.getElementById('clientName').value;
+        const parentName = document.getElementById('parentName').value;
+        const address1 = document.getElementById('address1').value;
+        const address2 = document.getElementById('address2').value;
+        const phone = document.getElementById('phone').value;
+        const email = document.getElementById('email').value;
+        const abbreviation = document.getElementById('abbreviation').value;
+        
+        fetch('/client-add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ clientName, parentName, address1, address2, phone, email, abbreviation }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/pages/client.html'; // Redirect to client list
+            } else {
+                alert('Failed to add client.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    </script>
+</body>
+</html>

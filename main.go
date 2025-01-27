@@ -54,6 +54,24 @@ func main() {
 		tmpl.Execute(w, nil)
 	})
 
+	// Serve the client page
+	http.HandleFunc("/pages/client", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("pages/clients.html"))
+		tmpl.Execute(w, nil)
+	})
+
+	// Serve the clientAdd page
+	http.HandleFunc("/pages/clients-add", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("pages/clientsAdd.html"))
+		tmpl.Execute(w, nil)
+	})
+
+	// Serve the clientEdit page
+	http.HandleFunc("/pages/clients-edit", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("pages/clientsEdit.html"))
+		tmpl.Execute(w, nil)
+	})
+
 	// Register handlers from the invoice package
 	http.HandleFunc("/max-job-rows", invoice.GetMaxJobRowsHandler)
 	http.HandleFunc("/jobs", invoice.GetJobsHandler(db))
@@ -69,6 +87,9 @@ func main() {
 	http.HandleFunc("/invoice-number-check", invoice.CheckInvoiceNumberExistsHandler(db))
 	http.HandleFunc("/invoice-update", invoice.UpdateInvoiceHandler(db))
 	http.HandleFunc("/invoice-delete", invoice.DeleteInvoiceHandler(db))
+	http.HandleFunc("/client-add", invoice.ClientAddHandler(db))
+	http.HandleFunc("/client-update", invoice.ClientUpdateHandler(db))
+	http.HandleFunc("/client-delete", invoice.ClientDeleteHandler(db))
 
 	// Start the server
 	log.Println("Starting server at port 8080")

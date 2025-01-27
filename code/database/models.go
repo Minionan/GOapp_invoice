@@ -16,6 +16,7 @@ type Job struct {
 }
 
 type Client struct {
+	ID           int    `json:"id"`
 	ClientName   string `json:"clientName"`
 	ParentName   string `json:"parentName"`
 	Address1     string `json:"address1"`

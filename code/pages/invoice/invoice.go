@@ -133,7 +133,7 @@ func GetJobsHandler(db *sql.DB) http.HandlerFunc {
 func GetClientsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Query the database for client information.
-		rows, err := db.Query("SELECT clientName, parentName, address1, address2, phone, email, abbreviation FROM clients")
+		rows, err := db.Query("SELECT id, clientName, parentName, address1, address2, phone, email, abbreviation FROM clients")
 		if err != nil {
 			http.Error(w, "Failed to query clients data", http.StatusInternalServerError)
 			return
@@ -147,6 +147,7 @@ func GetClientsHandler(db *sql.DB) http.HandlerFunc {
 			var client database.Client
 			// Scan each column into the respective Client struct fields.
 			if err := rows.Scan(
+				&client.ID,
 				&client.ClientName,
 				&client.ParentName,
 				&client.Address1,

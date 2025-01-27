@@ -3,7 +3,6 @@
 /*------------------------------------*\
     Invoice Page Styles
 \*------------------------------------*/
-
 #invoice-list {
     margin-top: 20px;
 }
@@ -167,4 +166,44 @@
 
 .invoice-edit-container .job-row .delete-job {
     margin-left: 10px;
+}
+
+/*------------------------------------*\
+    Client Page Styles
+\*------------------------------------*/
+#clientTable {
+    border-collapse: collapse;
+    margin-top: 10px;
+    width: auto; /* Auto-adjust width to fit content */
+}
+
+#clientTable th, #clientTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+#clientTable th {
+    background-color: #f2f2f2;
+}
+
+/*------------------------------------*\
+    Job Page Styles
+\*------------------------------------*/
+#jobTable {
+    border-collapse: collapse;
+    margin-top: 10px;
+    width: auto; /* Auto-adjust width to fit content */
+}
+
+#jobTable th, #jobTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+#jobTable th {
+    background-color: #f2f2f2;
 }

@@ -10,7 +10,7 @@
     <div class="invoice-container">
         <h1>Welcome!</h1>
         <p>Here you can create, edit and delete your Job Details used on invoices.</p>
-        <h2>List of jobs used on invoices</h2>
+        <h2>List of saved jobs</h2>
         <table id="jobTable">
             <thead>
                 <tr>
@@ -23,9 +23,17 @@
                 <!-- Rows will be populated by JavaScript -->
             </tbody>
         </table>
-        <br><br>
+        <br>
         <button type="button" onclick="window.location.href='/pages/invoice-job-add'">Add Job</button>
         <button type="button" onclick="window.location.href='/'">Back</button><br><br>
+        <fieldset>
+            <legend>How to use:</legend>
+            <label>
+                1. Choose the job entry to edit.<br>
+                2. Click on Edit button next to the selected job.<br>
+                3. Click Add Job button if you want to create a new job. 
+            </label>
+        </fieldset><br>
     </div>
     <script>
         // Fetch and display jobs
