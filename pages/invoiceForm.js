@@ -1,6 +1,7 @@
 // pages/invoiceForm.js
 $(document).ready(function() {
     let maxJobRows = 1; // Default value
+    let vatRate = 0.05; // Default value
 
     // Load jobs data
     $.getJSON('/jobs', function(data) {
@@ -24,6 +25,21 @@ $(document).ready(function() {
     $.getJSON('/max-job-rows', function(data) {
         maxJobRows = data.maxRows;
     });
+
+    // Fetch VAT rate
+    function fetchVatRate() {
+        return $.getJSON('/vat-get').then(function(data) {
+            const vatRate = data.rate;
+            // Update the VAT label with the fetched rate
+            $('#vat-label').text(`VAT ${vatRate}%:`);
+            return vatRate;
+        }).fail(function() {
+            console.error('Failed to fetch VAT rate. Using default value of 0.05.');
+            // Update the VAT label with the default rate
+            $('#vat-label').text('VAT:');
+            return 0.05; // Default VAT rate if the fetch fails
+        });
+    }
 
     function updateJobDropdowns() {
         $('.job-dropdown').each(function() {
@@ -125,13 +141,15 @@ $(document).ready(function() {
         $('.job-row').each(function() {
             totalCost += parseFloat($(this).find('.fullPrice').val()) || 0;
         });
-
-        var vat = totalCost * 0.05;
-        var totalAmount = totalCost + vat;
-
-        $('#cost').val(totalCost.toFixed(2));
-        $('#vat').val(vat.toFixed(2));
-        $('#total').val(totalAmount.toFixed(2));
+    
+        fetchVatRate().then(function(vatRate) {
+            var vat = totalCost * (vatRate/100);
+            var totalAmount = totalCost + vat;
+    
+            $('#cost').val(totalCost.toFixed(2));
+            $('#vat').val(vat.toFixed(2));
+            $('#total').val(totalAmount.toFixed(2));
+        });
     }
 
     function updateFullPrice(row) {

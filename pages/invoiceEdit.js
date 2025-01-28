@@ -1,5 +1,7 @@
 // pages/invoiceEdit.js
 $(document).ready(function() {
+    let vatRate = 0.05; // Default VAT rate
+
     // Fetch the list of invoices for the dropdown
     $.getJSON('/invoice-list', function(data) {
         const select = $('#invoice-select');
@@ -40,6 +42,9 @@ $(document).ready(function() {
         $('#cost').val(invoice.cost.toFixed(2));
         $('#vat').val(invoice.vat.toFixed(2));
         $('#total').val(invoice.total.toFixed(2));
+
+        // Calculate VAT rate based on the loaded invoice
+        vatRate = invoice.vat / invoice.cost;
 
         // Populate job rows
         const jobRows = $('#job-rows');
@@ -82,7 +87,7 @@ $(document).ready(function() {
             totalCost += parseFloat($(this).find('.fullPrice').val()) || 0;
         });
 
-        const vat = totalCost * 0.05;
+        const vat = totalCost * vatRate;
         const totalAmount = totalCost + vat;
 
         $('#cost').val(totalCost.toFixed(2));

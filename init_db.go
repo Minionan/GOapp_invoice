@@ -47,6 +47,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Create the vat table
+	createVatTable := `
+	CREATE TABLE IF NOT EXISTS vat (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		rate REAL NOT NULL
+	);
+	`
+	_, err = db.Exec(createVatTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Create the invoices table
 	createInvoicesTable := `
 	CREATE TABLE IF NOT EXISTS invoices (
@@ -83,6 +95,12 @@ func main() {
 	_, err = db.Exec(createInvoicesJobRowTable)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Set default vat value to 20%
+	_, err = db.Exec("INSERT INTO vat (rate) VALUES (?)", 20.0) // Default VAT rate of 20%
+	if err != nil {
+		log.Fatal("Failed to insert default VAT rate:", err)
 	}
 
 	// Hard-coded clients data

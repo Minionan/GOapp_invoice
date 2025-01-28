@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>Add Job</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/pages/invoiceJobAdd.js"></script>
 </head>
 <body>
     <div class="invoice-container">
@@ -20,33 +22,5 @@
             <button type="button" onclick="window.location.href='/pages/invoiceJob.html'">Back</button>
         </form>
     </div>
-
-    <script>
-    document.getElementById('jobForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        
-        const jobName = document.getElementById('jobName').value;
-        const price = document.getElementById('price').value;
-        
-        fetch('/job-add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ jobName, price }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = '/pages/invoiceJob.html'; // Redirect to job list
-            } else {
-                alert('Failed to add job.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    });
-    </script>
 </body>
 </html>

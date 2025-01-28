@@ -90,6 +90,8 @@ func main() {
 	http.HandleFunc("/client-add", invoice.ClientAddHandler(db))
 	http.HandleFunc("/client-update", invoice.ClientUpdateHandler(db))
 	http.HandleFunc("/client-delete", invoice.ClientDeleteHandler(db))
+	http.HandleFunc("/vat-get", invoice.GetVatHandler)
+	http.HandleFunc("/vat-update", invoice.UpdateVatHandler)
 
 	// Start the server
 	log.Println("Starting server at port 8080")

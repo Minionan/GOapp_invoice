@@ -1,0 +1,32 @@
+
+<!-- pages/invoiceVat.html --><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit VAT</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/pages/invoiceVat.js"></script>
+</head>
+<body>
+    <div class="invoice-container">
+        <h1>Welcome!</h1>
+        <p>Here you can edit your tax rate.</p>
+        <form id="vatForm">
+            <fieldset>
+                <legend>Vat Rate (%):</legend>
+                <input type="number" id="vatRate" name="vatRate" step="0.01" required>
+                <button type="submit">Update VAT</button>
+            </fieldset>
+        </form>
+        <br>
+        <button type="button" onclick="window.location.href='/'">Back</button><br><br>
+        <fieldset>
+            <legend>How to use:</legend>
+            <label>
+                1. Vat can be set to any value you require.<br>
+            </label>
+        </fieldset><br>
+    </div>
+</body>
+</html>

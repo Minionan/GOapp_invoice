@@ -26,6 +26,11 @@ type Client struct {
 	Abbreviation string `json:"abbreviation"`
 }
 
+type Vat struct {
+	ID   int     `json:"id"`
+	Rate float64 `json:"rate"`
+}
+
 type InvoiceData struct {
 	InvoiceNumber string  `json:"invoiceNumber"`
 	InvoiceDate   string  `json:"invoiceDate"`

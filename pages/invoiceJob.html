@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>Job List Page</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/pages/invoiceJob.js"></script>
 </head>
 <body>
     <div class="invoice-container">
@@ -35,24 +37,5 @@
             </label>
         </fieldset><br>
     </div>
-    <script>
-        // Fetch and display jobs
-        fetch('/jobs')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector('#jobTable tbody');
-                tbody.innerHTML = ''; // Clear existing rows
-                data.forEach(job => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${job.jobName}</td>
-                        <td>${job.price}</td>
-                        <td><button onclick="window.location.href='/pages/invoice-job-edit?id=${job.id}'">Edit</button></td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            })
-            .catch(error => console.error('Error fetching jobs:', error));
-    </script>
 </body>
 </html>
