@@ -3,10 +3,9 @@ package invoice
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"encoding/json"
 	"net/http"
-
-	"GOapp_invoice/code/database" // Import the database package
 )
 
 type AddJobRequest struct {
@@ -14,20 +13,7 @@ type AddJobRequest struct {
 	Price   string `json:"price"`
 }
 
-// Fetch job details by ID
-func JobDetailsHandler(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Query().Get("id")
-		var job database.Job // Use database.Job instead of Job
-		err := db.QueryRow("SELECT id, jobName, price FROM jobs WHERE id = ?", id).Scan(&job.ID, &job.JobName, &job.Price)
-		if err != nil {
-			http.Error(w, "Job not found", http.StatusNotFound)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(job)
-	}
-}
+// Fetching job details is handled by JobGetHandler function in code/pages/invoice/invoice.go
 
 // Add new job
 func JobAddHandler(db *sql.DB) http.HandlerFunc {
@@ -82,5 +68,42 @@ func JobDeleteHandler(db *sql.DB) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	}
+}
+
+// ExportJobsHandler exports the list of jobs as a CSV file
+func JobExportHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rows, err := db.Query("SELECT jobName, price FROM jobs")
+		if err != nil {
+			http.Error(w, "Failed to fetch jobs", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		w.Header().Set("Content-Type", "text/csv")
+		w.Header().Set("Content-Disposition", "attachment; filename=jobs.csv")
+		w.WriteHeader(http.StatusOK)
+
+		csvWriter := csv.NewWriter(w)
+		defer csvWriter.Flush()
+
+		// Write CSV header
+		csvWriter.Write([]string{"Job Name", "Price"})
+
+		// Write job data
+		for rows.Next() {
+			var jobName, price string
+			if err := rows.Scan(&jobName, &price); err != nil {
+				http.Error(w, "Failed to read job data", http.StatusInternalServerError)
+				return
+			}
+			csvWriter.Write([]string{jobName, price})
+		}
+
+		if err := rows.Err(); err != nil {
+			http.Error(w, "Error iterating over job data", http.StatusInternalServerError)
+			return
+		}
 	}
 }

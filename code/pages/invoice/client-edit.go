@@ -3,6 +3,7 @@ package invoice
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"encoding/json"
 	"net/http"
 )
@@ -74,5 +75,46 @@ func ClientDeleteHandler(db *sql.DB) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	}
+}
+
+// Export clients to CSV
+func ClientExportCSVHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rows, err := db.Query("SELECT abbreviation, clientName, parentName, phone, email FROM clients")
+		if err != nil {
+			http.Error(w, "Failed to fetch clients", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		w.Header().Set("Content-Type", "text/csv")
+		w.Header().Set("Content-Disposition", "attachment; filename=clients.csv")
+		csvWriter := csv.NewWriter(w)
+		defer csvWriter.Flush()
+
+		// Write CSV header
+		if err := csvWriter.Write([]string{"Abbreviation", "Client Name", "Payee Name", "Phone", "Email"}); err != nil {
+			http.Error(w, "Failed to write CSV header", http.StatusInternalServerError)
+			return
+		}
+
+		// Write rows
+		for rows.Next() {
+			var abbreviation, clientName, parentName, phone, email string
+			if err := rows.Scan(&abbreviation, &clientName, &parentName, &phone, &email); err != nil {
+				http.Error(w, "Failed to read client data", http.StatusInternalServerError)
+				return
+			}
+			if err := csvWriter.Write([]string{abbreviation, clientName, parentName, phone, email}); err != nil {
+				http.Error(w, "Failed to write CSV row", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		if err := rows.Err(); err != nil {
+			http.Error(w, "Error iterating over client data", http.StatusInternalServerError)
+			return
+		}
 	}
 }

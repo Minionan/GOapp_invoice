@@ -21,3 +21,8 @@ fetch('/clients')
     });
 })
 .catch(error => console.error('Error fetching clients:', error));
+
+// Export clients to csv
+function clientsExport() {
+    window.location.href = '/client-export';
+}

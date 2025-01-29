@@ -1,17 +1,24 @@
 // pages/invoiceJobEdit.js
 // Fetch job details when page loads
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const jobId = urlParams.get('id');
-    
-    fetch(`/job-details?id=${jobId}`)
-        .then(response => response.json())
-        .then(job => {
-            document.getElementById('jobId').value = job.id;
-            document.getElementById('jobName').value = job.jobName;
-            document.getElementById('price').value = job.price;
-        })
-        .catch(error => console.error('Error fetching job details:', error));
+    const jobName = urlParams.get('jobName'); // Use jobName instead of id
+
+    if (jobName) {
+        fetch(`/jobs`)
+            .then(response => response.json())
+            .then(jobs => {
+                const job = jobs.find(j => j.jobName === jobName); // Find the job by jobName
+                if (job) {
+                    document.getElementById('jobId').value = job.id;
+                    document.getElementById('jobName').value = job.jobName;
+                    document.getElementById('price').value = job.price;
+                } else {
+                    console.error('Job not found');
+                }
+            })
+            .catch(error => console.error('Error fetching jobs:', error));
+    }
 });
 
 // Save job chnages to the database

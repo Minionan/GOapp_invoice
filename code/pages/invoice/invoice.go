@@ -100,7 +100,7 @@ func CheckInvoiceNumberExistsHandler(db *sql.DB) http.HandlerFunc {
 }
 
 // List all jobs in the database
-func GetJobsHandler(db *sql.DB) http.HandlerFunc {
+func JobGetHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Query the database for job entries
 		rows, err := db.Query("SELECT id, jobName, price FROM jobs") // Include 'id' in the query
