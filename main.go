@@ -84,6 +84,8 @@ func main() {
 	http.HandleFunc("/invoice-number-check", invoice.CheckInvoiceNumberExistsHandler(db))
 	http.HandleFunc("/invoice-update", invoice.UpdateInvoiceHandler(db))
 	http.HandleFunc("/invoice-delete", invoice.DeleteInvoiceHandler(db))
+	http.HandleFunc("/invoice-export-csv", invoice.InvoicesExportCSVHandler(db))
+	http.HandleFunc("/invoice-import-csv", invoice.InvoicesImportCSVHandler(db))
 	http.HandleFunc("/generate-xlsx", invoice.GenerateXLSX)
 	http.HandleFunc("/generate-pdf", invoice.GeneratePDF)
 	http.HandleFunc("/clients", invoice.GetClientsHandler(db))

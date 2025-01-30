@@ -8,11 +8,12 @@ import (
 )
 
 type Job struct {
-	ID        int    `json:"id"`
-	JobName   string `json:"jobName"`
-	Price     string `json:"price"`
-	Quantity  string `json:"quantity"`
-	FullPrice string `json:"fullPrice"`
+	ID            int    `json:"id"`
+	InvoiceNumber string `json:"invoiceNumber"`
+	JobName       string `json:"jobName"`
+	Price         string `json:"price"`
+	Quantity      string `json:"quantity"`
+	FullPrice     string `json:"fullPrice"`
 }
 
 type Client struct {
