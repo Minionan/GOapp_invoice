@@ -66,3 +66,32 @@ function importInvoices() {
     };
     fileInput.click();
 }
+
+function importInvoiceTXT() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.txt';
+    fileInput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                url: '/invoice-import-txt',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert(response.message); // Display the message from the backend
+                    location.reload(); // Reload the page to reflect changes
+                },
+                error: function() {
+                    alert('Failed to import invoices. Please check the file format.');
+                }
+            });
+        }
+    };
+    fileInput.click();
+}

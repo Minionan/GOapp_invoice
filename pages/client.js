@@ -23,12 +23,12 @@ fetch('/clients')
 .catch(error => console.error('Error fetching clients:', error));
 
 // Export clients to csv
-function clientsExport() {
+function clientsExportCSV() {
     window.location.href = '/client-export';
 }
 
 // Clients importing from CSV
-function importClients() {
+function importClientsCSV() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = '.csv';
@@ -39,7 +39,7 @@ function importClients() {
         const formData = new FormData();
         formData.append('file', file);
 
-        fetch('/client-import', {
+        fetch('/client-import-csv', {
             method: 'POST',
             body: formData,
         })

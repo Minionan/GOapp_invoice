@@ -8,7 +8,10 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
+
+	"GOapp_invoice/code/database" // Import the database package
 )
 
 func CheckInvoiceExists(db *sql.DB, invoiceNumber string) (bool, error) {
@@ -212,6 +215,140 @@ func InvoicesImportCSVHandler(db *sql.DB) http.HandlerFunc {
 
 		if len(duplicateInvoices) > 0 || len(malformedRows) > 0 {
 			response["message"] = "Some items were not imported due to duplicates or malformed rows."
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func InvoicesImportTXTHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		file, _, err := r.FormFile("file")
+		if err != nil {
+			log.Printf("Failed to read file: %v", err)
+			http.Error(w, "Failed to read file", http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+
+		content, err := io.ReadAll(file)
+		if err != nil {
+			log.Printf("Failed to read file content: %v", err)
+			http.Error(w, "Failed to read file content", http.StatusInternalServerError)
+			return
+		}
+
+		log.Printf("Raw file content:\n%s", string(content))
+
+		lines := strings.Split(string(content), "\n")
+
+		var invoiceNumber string
+		var invoiceDate string
+		var clientName string
+		var parentName string
+		var address1 string
+		var address2 string
+		var phone string
+		var email string
+		var cost float64
+		var vat float64
+		var total float64
+		var jobs []database.Job
+
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+
+			if strings.HasPrefix(line, "Invoice Number:") {
+				invoiceNumber = strings.TrimSpace(strings.TrimPrefix(line, "Invoice Number:"))
+				exists, err := CheckInvoiceExists(db, invoiceNumber)
+				if err != nil {
+					log.Printf("Failed to check if invoice exists: %v", err)
+					http.Error(w, "Failed to check if invoice exists", http.StatusInternalServerError)
+					return
+				}
+				if exists {
+					log.Printf("Duplicate invoice: %s", invoiceNumber)
+					http.Error(w, "Duplicate invoice", http.StatusConflict)
+					return
+				}
+			} else if strings.HasPrefix(line, "Invoice Date:") {
+				invoiceDate = strings.TrimSpace(strings.TrimPrefix(line, "Invoice Date:"))
+			} else if strings.HasPrefix(line, "Client Name:") {
+				clientName = strings.TrimSpace(strings.TrimPrefix(line, "Client Name:"))
+			} else if strings.HasPrefix(line, "Parent Name:") {
+				parentName = strings.TrimSpace(strings.TrimPrefix(line, "Parent Name:"))
+			} else if strings.HasPrefix(line, "Address 1:") {
+				address1 = strings.TrimSpace(strings.TrimPrefix(line, "Address 1:"))
+			} else if strings.HasPrefix(line, "Address 2:") {
+				address2 = strings.TrimSpace(strings.TrimPrefix(line, "Address 2:"))
+			} else if strings.HasPrefix(line, "Phone:") {
+				phone = strings.TrimSpace(strings.TrimPrefix(line, "Phone:"))
+			} else if strings.HasPrefix(line, "Email:") {
+				email = strings.TrimSpace(strings.TrimPrefix(line, "Email:"))
+			} else if strings.HasPrefix(line, "Job Cost:") {
+				cost, _ = strconv.ParseFloat(strings.TrimSpace(strings.TrimPrefix(line, "Job Cost:")), 64)
+			} else if strings.HasPrefix(line, "VAT (5%):") {
+				vat, _ = strconv.ParseFloat(strings.TrimSpace(strings.TrimPrefix(line, "VAT (5%):")), 64)
+			} else if strings.HasPrefix(line, "Total Amount:") {
+				total, _ = strconv.ParseFloat(strings.TrimSpace(strings.TrimPrefix(line, "Total Amount:")), 64)
+			} else if strings.HasPrefix(line, "Jobs:") {
+				// Process job lines
+				for _, jobLine := range lines {
+					if strings.Contains(jobLine, ":") && strings.Contains(jobLine, "Quantity:") {
+						parts := strings.Split(jobLine, ",")
+						jobName := strings.TrimSpace(strings.Split(parts[0], ":")[1])
+						quantity := strings.TrimSpace(strings.Split(parts[1], ":")[1])
+						price := strings.TrimSpace(strings.Split(parts[2], ":")[1])
+						fullPrice := strings.TrimSpace(strings.Split(parts[3], ":")[1])
+
+						job := database.Job{
+							InvoiceNumber: invoiceNumber,
+							JobName:       jobName,
+							Quantity:      quantity,
+							Price:         price,
+							FullPrice:     fullPrice,
+						}
+						jobs = append(jobs, job)
+					}
+				}
+			}
+		}
+
+		// Insert invoice data
+		_, err = db.Exec(`
+            INSERT INTO invoices (invoiceNumber, invoiceDate, clientName, parentName, address1, address2, phone, email, cost, VAT, total)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, invoiceNumber, invoiceDate, clientName, parentName, address1, address2, phone, email, cost, vat, total)
+
+		if err != nil {
+			log.Printf("Failed to insert invoice data: %v", err)
+			http.Error(w, "Failed to insert invoice data", http.StatusInternalServerError)
+			return
+		}
+
+		// Insert job data
+		for _, job := range jobs {
+			_, err := db.Exec(`
+                INSERT INTO invoices_job_row (invoiceNumber, jobName, quantity, price, fullPrice)
+                VALUES (?, ?, ?, ?, ?)
+            `, job.InvoiceNumber, job.JobName, job.Quantity, job.Price, job.FullPrice)
+
+			if err != nil {
+				log.Printf("Failed to insert job data: %v", err)
+				http.Error(w, "Failed to insert job data", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		log.Printf("Successfully imported invoice: %s", invoiceNumber)
+
+		response := map[string]interface{}{
+			"message":         "Invoice imported successfully",
+			"importedInvoice": invoiceNumber,
 		}
 
 		w.Header().Set("Content-Type", "application/json")

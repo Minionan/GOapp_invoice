@@ -87,6 +87,7 @@ func main() {
 	http.HandleFunc("/invoice-delete", invoice.DeleteInvoiceHandler(db))
 	http.HandleFunc("/invoice-export-csv", invoice.InvoicesExportCSVHandler(db))
 	http.HandleFunc("/invoice-import-csv", invoice.InvoicesImportCSVHandler(db))
+	http.HandleFunc("/invoice-import-txt", invoice.InvoicesImportTXTHandler(db))
 	http.HandleFunc("/generate-xlsx", invoice.InvoiceGenerateXLSX)
 	http.HandleFunc("/generate-pdf", invoice.InvoiceGeneratePDF)
 	http.HandleFunc("/clients", invoice.GetClientsHandler(db))
