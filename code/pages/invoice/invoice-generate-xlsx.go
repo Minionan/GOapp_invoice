@@ -1,4 +1,4 @@
-// code/pages/invoice/generate-xlsx.go
+// code/pages/invoice/invoice-generate-xlsx.go
 package invoice
 
 import (
@@ -12,7 +12,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func GenerateXLSX(w http.ResponseWriter, r *http.Request) {
+func InvoiceGenerateXLSX(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return

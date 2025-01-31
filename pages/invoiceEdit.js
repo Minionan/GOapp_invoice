@@ -209,7 +209,7 @@ $(document).ready(function() {
             .then(data => {
                 if (data.success) {
                     alert('Invoice deleted successfully!');
-                    window.location.href = '/'; // Redirect to the main page
+                    window.location.href = '/pages/invoiceEdit.html'; // Reload invoiceEdit page
                 } else {
                     alert('Failed to delete invoice.');
                 }

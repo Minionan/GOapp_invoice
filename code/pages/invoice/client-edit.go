@@ -81,7 +81,7 @@ func ClientDeleteHandler(db *sql.DB) http.HandlerFunc {
 // Export clients to CSV
 func ClientExportCSVHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rows, err := db.Query("SELECT abbreviation, clientName, parentName, phone, email FROM clients")
+		rows, err := db.Query("SELECT clientName, parentName, address1, address2, phone, email, abbreviation FROM clients")
 		if err != nil {
 			http.Error(w, "Failed to fetch clients", http.StatusInternalServerError)
 			return
@@ -94,19 +94,19 @@ func ClientExportCSVHandler(db *sql.DB) http.HandlerFunc {
 		defer csvWriter.Flush()
 
 		// Write CSV header
-		if err := csvWriter.Write([]string{"Abbreviation", "Client Name", "Payee Name", "Phone", "Email"}); err != nil {
+		if err := csvWriter.Write([]string{"Client Name", "Payee Name", "Address 1", "Address 2", "Phone", "Email", "Abbreviation"}); err != nil {
 			http.Error(w, "Failed to write CSV header", http.StatusInternalServerError)
 			return
 		}
 
 		// Write rows
 		for rows.Next() {
-			var abbreviation, clientName, parentName, phone, email string
-			if err := rows.Scan(&abbreviation, &clientName, &parentName, &phone, &email); err != nil {
+			var clientName, parentName, address1, address2, phone, email, abbreviation string
+			if err := rows.Scan(&clientName, &parentName, &address1, &address2, &phone, &email, &abbreviation); err != nil {
 				http.Error(w, "Failed to read client data", http.StatusInternalServerError)
 				return
 			}
-			if err := csvWriter.Write([]string{abbreviation, clientName, parentName, phone, email}); err != nil {
+			if err := csvWriter.Write([]string{clientName, parentName, address1, address2, phone, email, abbreviation}); err != nil {
 				http.Error(w, "Failed to write CSV row", http.StatusInternalServerError)
 				return
 			}
@@ -116,5 +116,70 @@ func ClientExportCSVHandler(db *sql.DB) http.HandlerFunc {
 			http.Error(w, "Error iterating over client data", http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+// Import clients from CSV
+func ClientImportHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		file, _, err := r.FormFile("file")
+		if err != nil {
+			http.Error(w, "Failed to read file", http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+
+		reader := csv.NewReader(file)
+		records, err := reader.ReadAll()
+		if err != nil {
+			http.Error(w, "Failed to parse CSV", http.StatusInternalServerError)
+			return
+		}
+
+		importedClients := []string{} // Ensure this is always an empty array, not nil
+		skippedClients := []string{}  // Ensure this is always an empty array, not nil
+
+		for i, record := range records {
+			if i == 0 {
+				continue // Skip header
+			}
+
+			clientName := record[0]
+			parentName := record[1]
+			address1 := record[2]
+			address2 := record[3]
+			phone := record[4]
+			email := record[5]
+			abbreviation := record[6]
+
+			// Check if client already exists
+			var exists bool
+			err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM clients WHERE clientName = ? AND abbreviation = ?)", clientName, abbreviation).Scan(&exists)
+			if err != nil {
+				http.Error(w, "Failed to check client existence", http.StatusInternalServerError)
+				return
+			}
+
+			if exists {
+				skippedClients = append(skippedClients, clientName)
+				continue
+			}
+
+			// Insert new client
+			_, err = db.Exec("INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation) VALUES (?, ?, ?, ?, ?, ?, ?)",
+				clientName, parentName, address1, address2, phone, email, abbreviation)
+			if err != nil {
+				http.Error(w, "Failed to insert client", http.StatusInternalServerError)
+				return
+			}
+
+			importedClients = append(importedClients, clientName)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"imported": importedClients,
+			"skipped":  skippedClients,
+		})
 	}
 }

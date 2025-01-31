@@ -107,3 +107,62 @@ func JobExportHandler(db *sql.DB) http.HandlerFunc {
 		}
 	}
 }
+
+// Import jobs from CSV
+func JobImportHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		file, _, err := r.FormFile("file")
+		if err != nil {
+			http.Error(w, "Failed to read file", http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+
+		reader := csv.NewReader(file)
+		records, err := reader.ReadAll()
+		if err != nil {
+			http.Error(w, "Failed to parse CSV", http.StatusInternalServerError)
+			return
+		}
+
+		importedJobs := []string{} // Ensure this is always an empty array, not nil
+		skippedJobs := []string{}  // Ensure this is always an empty array, not nil
+
+		for i, record := range records {
+			if i == 0 {
+				continue // Skip header
+			}
+
+			jobName := record[0]
+			price := record[1]
+
+			// Check if job already exists
+			var exists bool
+			err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM jobs WHERE jobName = ?)", jobName).Scan(&exists)
+			if err != nil {
+				http.Error(w, "Failed to check job existence", http.StatusInternalServerError)
+				return
+			}
+
+			if exists {
+				skippedJobs = append(skippedJobs, jobName)
+				continue
+			}
+
+			// Insert new job
+			_, err = db.Exec("INSERT INTO jobs (jobName, price) VALUES (?, ?)", jobName, price)
+			if err != nil {
+				http.Error(w, "Failed to insert job", http.StatusInternalServerError)
+				return
+			}
+
+			importedJobs = append(importedJobs, jobName)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"imported": importedJobs,
+			"skipped":  skippedJobs,
+		})
+	}
+}

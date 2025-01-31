@@ -17,6 +17,7 @@ fetch('/jobs')
 })
 .catch(error => console.error('Error fetching jobs:', error));
 
+// Jobs exporing to CSV
 function exportJobs() {
     fetch('/job-export')
         .then(response => response.blob())
@@ -31,4 +32,34 @@ function exportJobs() {
             window.URL.revokeObjectURL(url);
         })
         .catch(error => console.error('Error exporting jobs:', error));
+}
+
+// Jobs imporing from CSV
+function importJobs() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv';
+    fileInput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/job-import', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            let message = "Import Results:\n";
+            message += `Imported Jobs: ${(data.imported || []).join(', ') || 'None'}\n`;
+            message += `Skipped Jobs (duplicates): ${(data.skipped || []).join(', ') || 'None'}`;
+            alert(message);
+            window.location.href = '/pages/invoiceJob.html'; // Reload invoiceJob page
+        })
+        .catch(error => console.error('Error importing jobs:', error));
+    };
+
+    fileInput.click();
 }

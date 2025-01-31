@@ -1,4 +1,4 @@
-// code/pages/invoice/generate-pdf.go
+// code/pages/invoice/invoice-generate-pdf.go
 package invoice
 
 import (
@@ -15,7 +15,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func GeneratePDF(w http.ResponseWriter, r *http.Request) {
+func InvoiceGeneratePDF(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return

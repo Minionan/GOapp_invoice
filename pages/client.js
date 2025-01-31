@@ -26,3 +26,33 @@ fetch('/clients')
 function clientsExport() {
     window.location.href = '/client-export';
 }
+
+// Clients importing from CSV
+function importClients() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv';
+    fileInput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/client-import', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            let message = "Import Results:\n";
+            message += `Imported Clients: ${(data.imported || []).join(', ') || 'None'}\n`;
+            message += `Skipped Clients (duplicates): ${(data.skipped || []).join(', ') || 'None'}`;
+            alert(message);
+            window.location.href = '/pages/client.html'; // Reload client page
+        })
+        .catch(error => console.error('Error importing clients:', error));
+    };
+
+    fileInput.click();
+}
