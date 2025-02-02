@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('jobId').value = job.id;
                     document.getElementById('jobName').value = job.jobName;
                     document.getElementById('price').value = job.price;
+                    document.getElementById('status').value = job.status ? 1 : 0;
                 } else {
                     console.error('Job not found');
                 }
@@ -21,18 +22,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Save job chnages to the database
+// Save job changes to the database
 function saveJob() {
     const jobId = document.getElementById('jobId').value;
     const jobName = document.getElementById('jobName').value;
     const price = document.getElementById('price').value;
+    const status = document.getElementById('status').value === '1';
 
     fetch(`/job-update?id=${jobId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ jobName, price })
+        body: JSON.stringify({ jobName, price, status })
     })
     .then(response => {
         if (response.ok) {
@@ -47,7 +49,7 @@ function saveJob() {
     });
 }
 
-// delete job from the database
+// Delete job from the database
 function deleteJob() {
     const jobId = document.getElementById('jobId').value;
     const confirmDelete = confirm('Are you sure you want to delete this job?');

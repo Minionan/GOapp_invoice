@@ -3,7 +3,8 @@
 This is a simple invoice-generating app written with JS and GO.
 It is a good start when creating your web app where invoicing functionality is required.
 This version of the app can generate the invoice in txt, xlsx and pdf format.
-Added also job details edit functionality allowing users to customise their job entry on invoice.
+The app has a clients and jobs details saving functionality allowing user to create invoice by choosing saved jobs and clients details.
+Import and Export functions allow yser to freely save and restore different account details and share them between users.
 
 ## Setup
 
@@ -23,7 +24,7 @@ For linux system a headless installation with calc will suffice.
 ### Replacing template.xlsx file
 
 Please replace the template.xlsx file with your company file.
-Be advised that libreoffice is used for pdf generation, thus formatting might differ from one used by excel.
+Be advised that Libreoffice is used for pdf generation, thus formatting might differ from one used by Excel.
 Some adjustments might be required to get the pdf output file to look as intended.
 
 ## Run app

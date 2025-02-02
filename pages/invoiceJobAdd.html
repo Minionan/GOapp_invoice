@@ -13,11 +13,16 @@
         <h1>Add Job</h1>
         <form id="jobForm">
             <label for="jobName">Job Name:</label>
-            <input type="text" id="jobName" name="jobName" required><br><br>
-            
+            <input type="text" id="jobName" name="jobName" required>
+            <br><br>
             <label for="price">Price:</label>
-            <input type="text" id="price" name="price" required><br><br>
-            
+            <input type="text" id="price" name="price" required>
+            <br><br>
+            <label for="status">Status:</label>
+            <select id="status" required>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select><br><br>
             <button type="submit">Create Job</button>
             <button type="button" onclick="window.location.href='/pages/invoiceJob.html'">Back</button>
         </form>

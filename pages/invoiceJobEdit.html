@@ -17,9 +17,15 @@
             <input type="text" id="jobName" required><br><br>
             <label for="price">Price:</label>
             <input type="text" id="price" required><br><br>
+            <label for="status">Status:</label>
+            <select id="status" required>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select><br><br>
             <div class="button-group">
                 <button type="button" onclick="saveJob()">Save Job</button>
                 <button type="button" onclick="deleteJob()">Delete Job</button>
+                <br><br>
                 <button type="button" onclick="window.location.href='/pages/invoiceJob.html'">Back</button>
                 <br><br>
                 <fieldset>
@@ -28,7 +34,8 @@
                         1. Edit job name or price to your liking.<br>
                         2. Save, Delete and Back buttons are self-explainatory.<br>
                         3. Editing job name or price will help you set the default job values used on Invoice Form.<br>
-                        4. Editing job name or price do not apply to any of the saved invoices.
+                        4. Job status dermine if the job is visible on job list when filling Invoice Form.<br>
+                        5. Changes to existing job name or price do not apply to any of the saved invoices.
                     </label>
                 </fieldset><br>
             </div>

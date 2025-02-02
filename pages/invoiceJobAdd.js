@@ -5,13 +5,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const jobName = document.getElementById('jobName').value;
         const price = document.getElementById('price').value;
+        const status = document.getElementById('status').value === '1';
         
         fetch('/job-add', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ jobName, price }),
+            body: JSON.stringify({ jobName, price, status }),
         })
         .then(response => response.json())
         .then(data => {

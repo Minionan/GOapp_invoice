@@ -75,8 +75,9 @@ func main() {
 	// Register handlers from the invoice package
 	http.HandleFunc("/max-job-rows", invoice.GetMaxJobRowsHandler)
 	http.HandleFunc("/jobs", invoice.JobGetHandler(db))
-	http.HandleFunc("/job-update", invoice.JobUpdateHandler(db))
 	http.HandleFunc("/job-add", invoice.JobAddHandler(db))
+	http.HandleFunc("/job-update", invoice.JobUpdateHandler(db))
+	http.HandleFunc("/job-status", invoice.JobStatusHandler(db))
 	http.HandleFunc("/job-delete", invoice.JobDeleteHandler(db))
 	http.HandleFunc("/job-export", invoice.JobExportHandler(db))
 	http.HandleFunc("/job-import", invoice.JobImportHandler(db))

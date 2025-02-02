@@ -52,7 +52,8 @@ $(document).ready(function() {
                     text: "Please choose a job..."
                 }));
                 if (window.jobsData) {
-                    window.jobsData.forEach(function(job) {
+                    // Filter jobs to include only active jobs (status === true)
+                    window.jobsData.filter(job => job.status).forEach(function(job) {
                         dropdown.append($('<option>', {
                             value: job.jobName,
                             text: job.jobName,

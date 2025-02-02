@@ -14,6 +14,7 @@ type Job struct {
 	Price         string `json:"price"`
 	Quantity      string `json:"quantity"`
 	FullPrice     string `json:"fullPrice"`
+	Status        bool   `json:"status"`
 }
 
 type Client struct {

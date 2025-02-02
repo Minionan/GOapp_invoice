@@ -1,21 +1,42 @@
 // pages/invoiceJob.js
 // Fetch and display jobs
 fetch('/jobs')
-.then(response => response.json())
-.then(data => {
-    const tbody = document.querySelector('#jobTable tbody');
-    tbody.innerHTML = ''; // Clear existing rows
-    data.forEach(job => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${job.jobName}</td>
-            <td>${job.price}</td>
-            <td><button onclick="window.location.href='/pages/invoice-job-edit?jobName=${encodeURIComponent(job.jobName)}'">Edit</button></td>
-        `;
-        tbody.appendChild(row);
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.querySelector('#jobTable tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+        data.forEach(job => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${job.jobName}</td>
+                <td>${job.price}</td>
+                <td><input type="checkbox" ${job.status ? 'checked' : ''} onchange="updateJobStatus(${job.id}, this.checked)"></td>
+                <td><button onclick="window.location.href='/pages/invoice-job-edit?jobName=${encodeURIComponent(job.jobName)}'">Edit</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    })
+    .catch(error => console.error('Error fetching jobs:', error));
+
+// Update job status on user input
+function updateJobStatus(jobId, status) {
+    fetch(`/job-status?id=${jobId}&status=${status}`, {
+        method: 'POST'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update job status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Revert checkbox state on error
+        const checkbox = document.querySelector(`input[type="checkbox"][onchange*="${jobId}"]`);
+        if (checkbox) {
+            checkbox.checked = !status;
+        }
     });
-})
-.catch(error => console.error('Error fetching jobs:', error));
+}
 
 // Jobs exporing to CSV
 function exportJobs() {

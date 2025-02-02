@@ -39,7 +39,8 @@ func main() {
     CREATE TABLE IF NOT EXISTS jobs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         jobName TEXT NOT NULL,
-        price TEXT NOT NULL
+        price TEXT NOT NULL,
+		status BOOLEAN NOT NULL DEFAULT 1
     );
     `
 	_, err = db.Exec(createJobsTable)

@@ -102,8 +102,8 @@ func CheckInvoiceNumberExistsHandler(db *sql.DB) http.HandlerFunc {
 // List all jobs in the database
 func JobGetHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Query the database for job entries
-		rows, err := db.Query("SELECT id, jobName, price FROM jobs") // Include 'id' in the query
+		// Query the database for job entries, including the 'status' field
+		rows, err := db.Query("SELECT id, jobName, price, status FROM jobs") // Include 'status' in the query
 		if err != nil {
 			http.Error(w, "Failed to query jobs data", http.StatusInternalServerError)
 			return
@@ -114,8 +114,8 @@ func JobGetHandler(db *sql.DB) http.HandlerFunc {
 		var jobs []database.Job
 		for rows.Next() {
 			var job database.Job
-			// Scan the columns (include 'id' here)
-			if err := rows.Scan(&job.ID, &job.JobName, &job.Price); err != nil {
+			// Scan the columns (include 'status' here)
+			if err := rows.Scan(&job.ID, &job.JobName, &job.Price, &job.Status); err != nil {
 				http.Error(w, "Failed to scan job data", http.StatusInternalServerError)
 				return
 			}
