@@ -3,9 +3,11 @@
 fetch('/jobs')
     .then(response => response.json())
     .then(data => {
+        //console.log('Received job:', data); // debug line
         const tbody = document.querySelector('#jobTable tbody');
         tbody.innerHTML = ''; // Clear existing rows
         data.forEach(job => {
+            //console.log('Processing job:', job); // debug line
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${job.jobName}</td>

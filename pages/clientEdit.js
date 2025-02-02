@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('phone').value = client.phone;
             document.getElementById('email').value = client.email;
             document.getElementById('abbreviation').value = client.abbreviation;
+            document.getElementById('status').value = client.status ? 1 : 0;
         })
         .catch(error => {
             console.error('Error fetching client details:', error);
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 });
 
+// Save client changes to the database
 function saveClient() {
     const clientId = document.getElementById('clientId').value;
     const clientName = document.getElementById('clientName').value;
@@ -51,13 +53,14 @@ function saveClient() {
     const phone = document.getElementById('phone').value;
     const email = document.getElementById('email').value;
     const abbreviation = document.getElementById('abbreviation').value;
+    const status = document.getElementById('status').value === '1';
 
     fetch(`/client-update?id=${clientId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ clientName, parentName, address1, address2, phone, email, abbreviation })
+        body: JSON.stringify({ clientName, parentName, address1, address2, phone, email, abbreviation, status })
     })
     .then(response => {
         if (response.ok) {
@@ -72,6 +75,7 @@ function saveClient() {
     });
 }
 
+// Delete client from the database
 function deleteClient() {
     const clientId = document.getElementById('clientId').value;
     const confirmDelete = confirm('Are you sure you want to delete this client?');

@@ -26,6 +26,7 @@ type Client struct {
 	Phone        string `json:"phone"`
 	Email        string `json:"email"`
 	Abbreviation string `json:"abbreviation"`
+	Status       bool   `json:"status"`
 }
 
 type Vat struct {

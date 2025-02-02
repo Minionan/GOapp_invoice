@@ -27,6 +27,11 @@
             <input type="text" id="email" required><br><br>
             <label for="abbreviation">Abbreviation:</label>
             <input type="text" id="abbreviation" required><br><br>
+            <label for="status">Status:</label>
+            <select id="status" required>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select><br><br>
             <div class="button-group">
                 <button type="button" onclick="saveClient()">Save Client</button>
                 <button type="button" onclick="deleteClient()">Delete Client</button>
@@ -38,7 +43,8 @@
                         1. Edit any client details as per your needs.<br>
                         2. Save, Delete and Back buttons are self-explainatory.<br>
                         3. Edits done to the client will set client details used on the Invoice Form.<br>
-                        4. Editing client details does not apply to any of the saved invoices.
+                        4. Client status dermine if the client is visible on client list when filling Invoice Form.<br>
+                        5. Changes to existing client details does not apply to any of the saved invoices.
                     </label>
                 </fieldset><br>
             </div>

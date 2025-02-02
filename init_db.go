@@ -26,7 +26,8 @@ func main() {
         address2 TEXT NOT NULL,
         phone TEXT NOT NULL,
         email TEXT NOT NULL,
-        abbreviation TEXT NOT NULL
+        abbreviation TEXT NOT NULL,
+		status BOOLEAN NOT NULL
     );
     `
 	_, err = db.Exec(createClientsTable)
@@ -40,7 +41,7 @@ func main() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         jobName TEXT NOT NULL,
         price TEXT NOT NULL,
-		status BOOLEAN NOT NULL DEFAULT 1
+		status BOOLEAN NOT NULL
     );
     `
 	_, err = db.Exec(createJobsTable)
@@ -113,6 +114,7 @@ func main() {
 		Phone        string
 		Email        string
 		Abbreviation string
+		Status       bool
 	}{
 		{
 			ClientName:   "Johnathan Michael Doe",
@@ -122,6 +124,7 @@ func main() {
 			Phone:        "(555) 123-4567",
 			Email:        "johndoe@example.com",
 			Abbreviation: "JMD",
+			Status:       true,
 		},
 		{
 			ClientName:   "Emily Elizabeth Smith",
@@ -131,6 +134,7 @@ func main() {
 			Phone:        "(555) 987-6543",
 			Email:        "emilysmith@website.org",
 			Abbreviation: "EES",
+			Status:       true,
 		},
 		{
 			ClientName:   "William Thomas Johnson",
@@ -140,15 +144,16 @@ func main() {
 			Phone:        "(555) 555-5555",
 			Email:        "williamjohnson@service.net",
 			Abbreviation: "WTJ",
+			Status:       true,
 		},
 	}
 
 	// Insert hard-coded clients data into the database
 	for _, client := range clients {
 		_, err := db.Exec(`
-            INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, client.ClientName, client.ParentName, client.Address1, client.Address2, client.Phone, client.Email, client.Abbreviation)
+            INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, client.ClientName, client.ParentName, client.Address1, client.Address2, client.Phone, client.Email, client.Abbreviation, client.Status)
 		if err != nil {
 			log.Fatal("Failed to insert client:", err)
 		}
@@ -158,21 +163,22 @@ func main() {
 	jobs := []struct {
 		JobName string
 		Price   string
+		Status  bool
 	}{
-		{JobName: "Software Development Services", Price: "500"},
-		{JobName: "Bug Fixing and Maintenance", Price: "400"},
-		{JobName: "API Integration", Price: "250"},
-		{JobName: "Database Design and Management", Price: "350"},
-		{JobName: "Project Management", Price: "500"},
-		{JobName: "Consultation Services", Price: "800"},
+		{JobName: "Software Development Services", Price: "500", Status: true},
+		{JobName: "Bug Fixing and Maintenance", Price: "400", Status: true},
+		{JobName: "API Integration", Price: "250", Status: true},
+		{JobName: "Database Design and Management", Price: "350", Status: true},
+		{JobName: "Project Management", Price: "500", Status: true},
+		{JobName: "Consultation Services", Price: "800", Status: true},
 	}
 
 	// Insert hard-coded jobs data into the database
 	for _, job := range jobs {
 		_, err := db.Exec(`
-            INSERT INTO jobs (jobName, price)
-            VALUES (?, ?)
-        `, job.JobName, job.Price)
+            INSERT INTO jobs (jobName, price, status)
+            VALUES (?, ?, ?)
+        `, job.JobName, job.Price, job.Status)
 		if err != nil {
 			log.Fatal("Failed to insert job:", err)
 		}

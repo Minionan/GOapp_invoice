@@ -13,26 +13,32 @@
         <h1>Add Client</h1>
         <form id="clientForm">
             <label for="clientName">Client Name:</label>
-            <input type="text" id="clientName" name="clientName" required><br><br>
-            
+            <input type="text" id="clientName" name="clientName" required>
+            <br><br>
             <label for="parentName">Payee Name:</label>
-            <input type="text" id="parentName" name="parentName" required><br><br>
-            
+            <input type="text" id="parentName" name="parentName" required>
+            <br><br>
             <label for="address1">Address 1:</label>
-            <input type="text" id="address1" name="address1" required><br><br>
-            
+            <input type="text" id="address1" name="address1" required>
+            <br><br>
             <label for="address2">Address 2:</label>
-            <input type="text" id="address2" name="address2" required><br><br>
-            
+            <input type="text" id="address2" name="address2" required>
+            <br><br>
             <label for="phone">Phone:</label>
-            <input type="text" id="phone" name="phone" required><br><br>
-            
+            <input type="text" id="phone" name="phone" required>
+            <br><br>
             <label for="email">Email:</label>
-            <input type="text" id="email" name="email" required><br><br>
-            
+            <input type="text" id="email" name="email" required>
+            <br><br>
             <label for="abbreviation">Abbreviation:</label>
-            <input type="text" id="abbreviation" name="abbreviation" required><br><br>
-            
+            <input type="text" id="abbreviation" name="abbreviation" required>
+            <br><br>
+            <label for="status">Status:</label>
+            <select id="status" required>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select>
+            <br><br>
             <button type="submit">Create Client</button>
             <button type="button" onclick="window.location.href='/pages/client.html'">Back</button>
         </form>

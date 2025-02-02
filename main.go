@@ -94,9 +94,10 @@ func main() {
 	http.HandleFunc("/clients", invoice.GetClientsHandler(db))
 	http.HandleFunc("/client-add", invoice.ClientAddHandler(db))
 	http.HandleFunc("/client-update", invoice.ClientUpdateHandler(db))
+	http.HandleFunc("/client-status", invoice.ClientStatusHandler(db))
 	http.HandleFunc("/client-delete", invoice.ClientDeleteHandler(db))
-	http.HandleFunc("/client-export", invoice.ClientExportCSVHandler(db))
-	http.HandleFunc("/client-import", invoice.ClientImportHandler(db))
+	http.HandleFunc("/client-export-csv", invoice.ClientExportCSVHandler(db))
+	http.HandleFunc("/client-import-csv", invoice.ClientImportHandler(db))
 	http.HandleFunc("/vat-get", invoice.GetVatHandler)
 	http.HandleFunc("/vat-update", invoice.UpdateVatHandler)
 

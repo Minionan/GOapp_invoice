@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 type AddClientRequest struct {
@@ -16,6 +17,7 @@ type AddClientRequest struct {
 	Phone        string `json:"phone"`
 	Email        string `json:"email"`
 	Abbreviation string `json:"abbreviation"`
+	Status       bool   `json:"status"`
 }
 
 // Fetching client details is handled by GetClientsHandler function in code/pages/invoice/invoice.go
@@ -29,8 +31,8 @@ func ClientAddHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		_, err := db.Exec("INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation) VALUES (?, ?, ?, ?, ?, ?, ?)",
-			req.ClientName, req.ParentName, req.Address1, req.Address2, req.Phone, req.Email, req.Abbreviation)
+		_, err := db.Exec("INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+			req.ClientName, req.ParentName, req.Address1, req.Address2, req.Phone, req.Email, req.Abbreviation, req.Status)
 		if err != nil {
 			http.Error(w, "Failed to insert client", http.StatusInternalServerError)
 			return
@@ -51,10 +53,30 @@ func ClientUpdateHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		_, err := db.Exec("UPDATE clients SET clientName = ?, parentName = ?, address1 = ?, address2 = ?, phone = ?, email = ?, abbreviation = ? WHERE id = ?",
-			req.ClientName, req.ParentName, req.Address1, req.Address2, req.Phone, req.Email, req.Abbreviation, id)
+		_, err := db.Exec("UPDATE clients SET clientName = ?, parentName = ?, address1 = ?, address2 = ?, phone = ?, email = ?, abbreviation = ?, status = ? WHERE id = ?",
+			req.ClientName, req.ParentName, req.Address1, req.Address2, req.Phone, req.Email, req.Abbreviation, req.Status, id)
 		if err != nil {
 			http.Error(w, "Failed to update client", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	}
+}
+
+// Clinet status update (used only for client.js to update client status on checkmark changes)
+func ClientStatusHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("id")
+		status := r.URL.Query().Get("status")
+
+		// Convert status to boolean
+		statusBool := status == "true"
+
+		_, err := db.Exec("UPDATE clients SET status = ? WHERE id = ?", statusBool, id)
+		if err != nil {
+			http.Error(w, "Failed to update client status", http.StatusInternalServerError)
 			return
 		}
 
@@ -81,7 +103,7 @@ func ClientDeleteHandler(db *sql.DB) http.HandlerFunc {
 // Export clients to CSV
 func ClientExportCSVHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rows, err := db.Query("SELECT clientName, parentName, address1, address2, phone, email, abbreviation FROM clients")
+		rows, err := db.Query("SELECT clientName, parentName, address1, address2, phone, email, abbreviation, status FROM clients")
 		if err != nil {
 			http.Error(w, "Failed to fetch clients", http.StatusInternalServerError)
 			return
@@ -94,7 +116,7 @@ func ClientExportCSVHandler(db *sql.DB) http.HandlerFunc {
 		defer csvWriter.Flush()
 
 		// Write CSV header
-		if err := csvWriter.Write([]string{"Client Name", "Payee Name", "Address 1", "Address 2", "Phone", "Email", "Abbreviation"}); err != nil {
+		if err := csvWriter.Write([]string{"Client Name", "Payee Name", "Address 1", "Address 2", "Phone", "Email", "Abbreviation", "Status"}); err != nil {
 			http.Error(w, "Failed to write CSV header", http.StatusInternalServerError)
 			return
 		}
@@ -102,11 +124,12 @@ func ClientExportCSVHandler(db *sql.DB) http.HandlerFunc {
 		// Write rows
 		for rows.Next() {
 			var clientName, parentName, address1, address2, phone, email, abbreviation string
-			if err := rows.Scan(&clientName, &parentName, &address1, &address2, &phone, &email, &abbreviation); err != nil {
+			var status bool
+			if err := rows.Scan(&clientName, &parentName, &address1, &address2, &phone, &email, &abbreviation, &status); err != nil {
 				http.Error(w, "Failed to read client data", http.StatusInternalServerError)
 				return
 			}
-			if err := csvWriter.Write([]string{clientName, parentName, address1, address2, phone, email, abbreviation}); err != nil {
+			if err := csvWriter.Write([]string{clientName, parentName, address1, address2, phone, email, abbreviation, strconv.FormatBool(status)}); err != nil {
 				http.Error(w, "Failed to write CSV row", http.StatusInternalServerError)
 				return
 			}
@@ -151,10 +174,18 @@ func ClientImportHandler(db *sql.DB) http.HandlerFunc {
 			phone := record[4]
 			email := record[5]
 			abbreviation := record[6]
+			statusStr := record[7]
+
+			// Convert status string to bool
+			statusBool, err := strconv.ParseBool(statusStr)
+			if err != nil {
+				http.Error(w, "Invalid status value in CSV", http.StatusBadRequest)
+				return
+			}
 
 			// Check if client already exists
 			var exists bool
-			err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM clients WHERE clientName = ? AND abbreviation = ?)", clientName, abbreviation).Scan(&exists)
+			err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM clients WHERE clientName = ? AND abbreviation = ?)", clientName, abbreviation).Scan(&exists)
 			if err != nil {
 				http.Error(w, "Failed to check client existence", http.StatusInternalServerError)
 				return
@@ -166,8 +197,8 @@ func ClientImportHandler(db *sql.DB) http.HandlerFunc {
 			}
 
 			// Insert new client
-			_, err = db.Exec("INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation) VALUES (?, ?, ?, ?, ?, ?, ?)",
-				clientName, parentName, address1, address2, phone, email, abbreviation)
+			_, err = db.Exec("INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+				clientName, parentName, address1, address2, phone, email, abbreviation, statusBool)
 			if err != nil {
 				http.Error(w, "Failed to insert client", http.StatusInternalServerError)
 				return

@@ -1,6 +1,6 @@
 // pages/client.js
-fetch('/clients')
 // Fetch and display clients
+fetch('/clients')
 .then(response => response.json())
 .then(data => {
     //console.log('Received clients:', data); // debug line
@@ -15,6 +15,7 @@ fetch('/clients')
             <td>${client.parentName}</td>
             <td>${client.phone}</td>
             <td>${client.email}</td>
+            <td><input type="checkbox" ${client.status ? 'checked' : ''} onchange="updateClientStatus(${client.id}, this.checked)"></td>
             <td><button onclick="window.location.href='/pages/clientEdit.html?id=${client.id}'">Edit</button></td>
         `;
         tbody.appendChild(row);
@@ -22,9 +23,29 @@ fetch('/clients')
 })
 .catch(error => console.error('Error fetching clients:', error));
 
+// Update client status on user input
+function updateClientStatus(clientId, status) {
+    fetch(`/client-status?id=${clientId}&status=${status}`, {
+        method: 'POST'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update client status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Revert checkbox state on error
+        const checkbox = document.querySelector(`input[type="checkbox"][onchange*="${clientId}"]`);
+        if (checkbox) {
+            checkbox.checked = !status;
+        }
+    });
+}
+
 // Export clients to csv
 function clientsExportCSV() {
-    window.location.href = '/client-export';
+    window.location.href = '/client-export-csv';
 }
 
 // Clients importing from CSV
