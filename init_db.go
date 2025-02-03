@@ -2,13 +2,53 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
+	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
+	// Define the directory path for the database
+	dbDir := "./db"
+	dbFilePath := dbDir + "/data.db"
+
+	// Check if the directory exists, and create it if it doesn't
+	if _, err := os.Stat(dbDir); os.IsNotExist(err) {
+		err := os.MkdirAll(dbDir, 0755)
+		if err != nil {
+			log.Fatalf("Failed to create directory: %v", err)
+		}
+		log.Println("Directory created:", dbDir)
+	}
+
+	// Check if the data.db file exists
+	if _, err := os.Stat(dbFilePath); err == nil {
+		// File exists, prompt the user for confirmation
+		fmt.Println("The data.db file already exists. Overwriting it will delete the existing data.")
+		fmt.Print("Do you want to continue? (yes/no): ")
+		reader := bufio.NewReader(os.Stdin)
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatalf("Failed to read user input: %v", err)
+		}
+		input = input[:len(input)-1] // Remove the newline character
+		if input != "yes" {
+			fmt.Println("Operation aborted. The existing data.db file will remain intact.")
+			return
+		}
+
+		// User agreed, delete the existing data.db file
+		err = os.Remove(dbFilePath)
+		if err != nil {
+			log.Fatalf("Failed to delete the existing data.db file: %v", err)
+		}
+		fmt.Println("Existing data.db file deleted.")
+	}
+
 	// Open or create the SQLite database file
 	db, err := sql.Open("sqlite3", "./db/data.db")
 	if err != nil {
