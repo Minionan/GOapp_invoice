@@ -13,7 +13,6 @@ fetch('/clients')
             <td>${client.abbreviation}</td>
             <td>${client.clientName}</td>
             <td>${client.parentName}</td>
-            <td>${client.phone}</td>
             <td>${client.email}</td>
             <td><input type="checkbox" ${client.status ? 'checked' : ''} onchange="updateClientStatus(${client.id}, this.checked)"></td>
             <td><button onclick="window.location.href='/pages/clientEdit.html?id=${client.id}'">Edit</button></td>

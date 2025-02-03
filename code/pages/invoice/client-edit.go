@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strconv"
 )
 
@@ -27,14 +28,52 @@ func ClientAddHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req AddClientRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
 			return
 		}
 
-		_, err := db.Exec("INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+		// Validate abbreviation length
+		if len(req.Abbreviation) < 3 {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Abbreviation must be at least 3 characters long"})
+			return
+		}
+
+		// Validate abbreviation characters
+		allowedCharacters := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+		if !allowedCharacters.MatchString(req.Abbreviation) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Abbreviation can only contain letters, numbers, and underscores"})
+			return
+		}
+
+		// Check if abbreviation is unique
+		var exists bool
+		err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM clients WHERE abbreviation = ?)", req.Abbreviation).Scan(&exists)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to check abbreviation uniqueness"})
+			return
+		}
+		if exists {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Abbreviation must be unique"})
+			return
+		}
+
+		// Insert new client
+		_, err = db.Exec("INSERT INTO clients (clientName, parentName, address1, address2, phone, email, abbreviation, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 			req.ClientName, req.ParentName, req.Address1, req.Address2, req.Phone, req.Email, req.Abbreviation, req.Status)
 		if err != nil {
-			http.Error(w, "Failed to insert client", http.StatusInternalServerError)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to insert client"})
 			return
 		}
 
